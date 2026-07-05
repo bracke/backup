@@ -1,0 +1,17 @@
+with "../../project_tools/project_tools.gpr";
+
+project Tools is
+   for Source_Dirs use ("src");
+   for Object_Dir use "obj";
+   for Exec_Dir use "bin";
+   for Create_Missing_Dirs use "True";
+   for Main use ("check_all.adb", "package_release.adb", "generate_manpage.adb", "check_manpage.adb", "generate_cli_surface.adb", "check_cli_surface.adb", "check_bash_completion.adb", "check_fish_completion.adb", "check_zsh_completion.adb", "check_powershell_completion.adb", "check_s3_compatibility.adb", "check_google_drive_compatibility.adb", "check_pcloud_compatibility.adb", "check_proton_drive_compatibility.adb");
+
+   package Compiler is
+      for Default_Switches ("Ada") use ("-gnat2022", "-gnata", "-gnatW8", "-gnatwa", "-gnatwJ");
+   end Compiler;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es");
+   end Binder;
+end Tools;

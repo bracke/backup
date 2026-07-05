@@ -1,0 +1,44 @@
+with "config/backup_config.gpr";
+with "../zlib/zlib.gpr";
+with "../sshlib/SSH_Lib.gpr";
+with "../cryptolib/cryptolib.gpr";
+with "../HttpClient/httpclient.gpr";
+with "../terminal_styles/terminal_styles.gpr";
+with "../i18n/i18n.gpr";
+with "../project_tools/project_tools.gpr";
+project Backup is
+
+   Target_OS := external ("BACKUP_TARGET_OS", Backup_Config.Alire_Host_OS);
+
+   case Target_OS is
+      when "windows" =>
+         for Source_Dirs use ("src/", "src/windows/", "config/");
+      when others =>
+         for Source_Dirs use ("src/", "src/unix/", "config/");
+   end case;
+   for Object_Dir use "obj/" & Target_OS & "/" & Backup_Config.Build_Profile;
+   for Create_Missing_Dirs use "True";
+   for Exec_Dir use "bin";
+   for Main use ("backup-main.adb");
+
+   package Compiler is
+      for Default_Switches ("Ada") use ("-gnat2022", "-gnata", "-gnatW8", "-gnatwa", "-gnatVa");
+   end Compiler;
+
+   package Builder is
+      for Executable ("backup-main.adb") use "backup";
+   end Builder;
+
+   package Binder is
+      for Switches ("Ada") use ("-Es"); --  Symbolic traceback
+   end Binder;
+
+   package Linker is
+      for Default_Switches ("Ada") use ("-lssl", "-lcrypto");
+   end Linker;
+
+   package Install is
+      for Artifacts (".") use ("share");
+   end Install;
+
+end Backup;

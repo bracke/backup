@@ -1,0 +1,57 @@
+name = "tests"
+description = "Test suite for backup"
+version = "0.1.0-dev"
+
+authors = ["Bent Bracke"]
+maintainers = ["Bent Bracke <bent@bracke.dk>"]
+maintainers-logins = ["bracke"]
+licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+website = ""
+tags = []
+
+executables = ["tests"]
+
+[[depends-on]]
+gnat_native = "=15.2.1"
+
+[[depends-on]]
+backup = "*"
+
+[[pins]]
+backup = { path = ".." }
+
+[[pins]]
+zlib = { path = "../../zlib" }
+
+[[depends-on]]
+aunit = "^26.0.0"
+
+[[depends-on]]
+project_tools = "*"
+
+[[depends-on]]
+terminal_styles = "*"
+
+[[depends-on]]
+i18n = "*"
+
+[[pins]]
+project_tools = { path = "../../project_tools" }
+
+[[pins]]
+terminal_styles = { path = "../../terminal_styles" }
+
+[[pins]]
+i18n = { path = "../../i18n" }
+
+[[depends-on]]
+cryptolib = "*"
+
+[[depends-on]]
+ssh_lib = "*"
+
+[[pins]]
+cryptolib = { path = "../../cryptolib" }
+
+[[pins]]
+ssh_lib = { path = "../../sshlib" }

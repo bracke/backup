@@ -1,0 +1,35 @@
+project Backup_SPARK is
+   for Source_Dirs use ("src", "config");
+   for Source_Files use
+     ("backup.ads",
+      "backup-path_syntax.ads",
+      "backup-path_syntax.adb",
+      "backup-incremental_syntax.ads",
+      "backup-incremental_syntax.adb",
+      "backup-jobs_syntax.ads",
+      "backup-jobs_syntax.adb",
+      "backup-jobs_retention_syntax.ads",
+      "backup-jobs_retention_syntax.adb",
+      "backup-remote_syntax.ads",
+      "backup-remote_syntax.adb",
+      "backup-remote_sync_syntax.ads",
+      "backup-remote_sync_syntax.adb",
+      "backup-catalog_syntax.ads",
+      "backup-catalog_syntax.adb",
+      "backup-restore_syntax.ads",
+      "backup-restore_syntax.adb",
+      "backup-manifest_syntax.ads",
+      "backup-manifest_syntax.adb",
+      "backup-zip_syntax.ads",
+      "backup-zip_syntax.adb",
+      "backup-cli_syntax.ads",
+      "backup-cli_syntax.adb",
+      "backup-cli_surface.ads",
+      "backup-cli_surface.adb");
+   for Object_Dir use "obj/spark/backup";
+
+   package Compiler is
+      for Default_Switches ("Ada") use
+        ("-gnat2022", "-gnatyM120", "-gnata", "-gnatVa", "-gnatW8");
+   end Compiler;
+end Backup_SPARK;

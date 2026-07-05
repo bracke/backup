@@ -1,0 +1,209 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux-release-check:
+    name: Linux release checklist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out backup
+        uses: actions/checkout@v4
+        with:
+          path: backup
+      - name: Check out project_tools sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/project_tools
+          path: project_tools
+      - name: Check out zlib sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/zlib
+          path: zlib
+      - name: Check out sshlib sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/sshlib
+          path: sshlib
+      - name: Check out cryptolib sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/cryptolib
+          path: cryptolib
+      - name: Check out HttpClient sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/HttpClient
+          path: HttpClient
+      - name: Check out terminal_styles sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/terminal_styles
+          path: terminal_styles
+      - name: Check out i18n sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/i18n
+          path: i18n
+      - name: Set up Alire
+        uses: alire-project/setup-alire@v5
+      - name: Install Ada toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnat gprbuild gnatprove fish zsh || sudo apt-get install -y gnat gprbuild fish zsh
+          command -v pwsh || sudo snap install powershell --classic
+          pwsh -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion'
+      - name: Build release checker
+        working-directory: backup
+        run: alr exec -- gprbuild -P tools/tools.gpr
+      - name: Run release checker
+        working-directory: backup
+        env:
+          BACKUP_S3_COMPAT_REMOTE: ${{ secrets.BACKUP_S3_COMPAT_REMOTE }}
+          BACKUP_S3_COMPAT_ENDPOINT: ${{ secrets.BACKUP_S3_COMPAT_ENDPOINT }}
+          BACKUP_S3_COMPAT_REGION: ${{ secrets.BACKUP_S3_COMPAT_REGION }}
+          BACKUP_S3_COMPAT_ACCESS_KEY_ENV: BACKUP_S3_COMPAT_ACCESS_KEY
+          BACKUP_S3_COMPAT_SECRET_KEY_ENV: BACKUP_S3_COMPAT_SECRET_KEY
+          BACKUP_S3_COMPAT_ACCESS_KEY: ${{ secrets.BACKUP_S3_COMPAT_ACCESS_KEY }}
+          BACKUP_S3_COMPAT_SECRET_KEY: ${{ secrets.BACKUP_S3_COMPAT_SECRET_KEY }}
+          BACKUP_S3_COMPAT_ADDRESSING: ${{ secrets.BACKUP_S3_COMPAT_ADDRESSING }}
+          BACKUP_S3_COMPAT_SSE: ${{ secrets.BACKUP_S3_COMPAT_SSE }}
+          BACKUP_S3_COMPAT_KMS_KEY_ID: ${{ secrets.BACKUP_S3_COMPAT_KMS_KEY_ID }}
+          BACKUP_GOOGLE_DRIVE_COMPAT_REMOTE: ${{ secrets.BACKUP_GOOGLE_DRIVE_COMPAT_REMOTE }}
+          BACKUP_GOOGLE_DRIVE_COMPAT_TOKEN_ENV: BACKUP_GOOGLE_DRIVE_COMPAT_TOKEN
+          BACKUP_GOOGLE_DRIVE_COMPAT_TOKEN: ${{ secrets.BACKUP_GOOGLE_DRIVE_COMPAT_TOKEN }}
+          BACKUP_GOOGLE_DRIVE_COMPAT_REFRESH_TOKEN: ${{ secrets.BACKUP_GOOGLE_DRIVE_COMPAT_REFRESH_TOKEN }}
+          BACKUP_GOOGLE_DRIVE_COMPAT_CLIENT_ID: ${{ secrets.BACKUP_GOOGLE_DRIVE_COMPAT_CLIENT_ID }}
+          BACKUP_GOOGLE_DRIVE_COMPAT_CLIENT_SECRET: ${{ secrets.BACKUP_GOOGLE_DRIVE_COMPAT_CLIENT_SECRET }}
+          BACKUP_GOOGLE_DRIVE_COMPAT_TOKEN_URI: ${{ secrets.BACKUP_GOOGLE_DRIVE_COMPAT_TOKEN_URI }}
+          BACKUP_GOOGLE_DRIVE_COMPAT_SUPPORTS_ALL_DRIVES: ${{ secrets.BACKUP_GOOGLE_DRIVE_COMPAT_SUPPORTS_ALL_DRIVES }}
+          BACKUP_GOOGLE_DRIVE_COMPAT_DRIVE_ID: ${{ secrets.BACKUP_GOOGLE_DRIVE_COMPAT_DRIVE_ID }}
+          BACKUP_PCLOUD_COMPAT_REMOTE: ${{ secrets.BACKUP_PCLOUD_COMPAT_REMOTE }}
+          BACKUP_PCLOUD_COMPAT_PATH_REMOTE: ${{ secrets.BACKUP_PCLOUD_COMPAT_PATH_REMOTE }}
+          BACKUP_PCLOUD_COMPAT_TOKEN_ENV: BACKUP_PCLOUD_COMPAT_TOKEN
+          BACKUP_PCLOUD_COMPAT_TOKEN: ${{ secrets.BACKUP_PCLOUD_COMPAT_TOKEN }}
+          BACKUP_PCLOUD_COMPAT_API_BASE: ${{ secrets.BACKUP_PCLOUD_COMPAT_API_BASE }}
+          BACKUP_PCLOUD_COMPAT_REGION: ${{ secrets.BACKUP_PCLOUD_COMPAT_REGION }}
+          BACKUP_PCLOUD_COMPAT_STRICT: ${{ vars.BACKUP_PCLOUD_COMPAT_STRICT }}
+        run: tools/bin/check_all
+
+  windows-build-check:
+    name: Windows native build check
+    runs-on: windows-latest
+    steps:
+      - name: Check out backup
+        uses: actions/checkout@v4
+        with:
+          path: backup
+      - name: Check out project_tools sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/project_tools
+          path: project_tools
+      - name: Check out zlib sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/zlib
+          path: zlib
+      - name: Check out sshlib sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/sshlib
+          path: sshlib
+      - name: Check out cryptolib sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/cryptolib
+          path: cryptolib
+      - name: Check out HttpClient sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/HttpClient
+          path: HttpClient
+      - name: Check out terminal_styles sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/terminal_styles
+          path: terminal_styles
+      - name: Check out i18n sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/i18n
+          path: i18n
+      - name: Set up Alire
+        uses: alire-project/setup-alire@v5
+      - name: Build backup on Windows
+        working-directory: backup
+        run: alr build
+      - name: Build tests on Windows
+        working-directory: backup/tests
+        run: alr build
+      - name: Run active tests on Windows
+        working-directory: backup/tests
+        run: .\bin\tests.exe
+      - name: Run HTTP remote live tests on Windows
+        working-directory: backup/tests
+        run: .\bin\backup_http_remote_live_tests.exe
+
+
+  macos-build-check:
+    name: macOS native build check
+    runs-on: macos-latest
+    steps:
+      - name: Check out backup
+        uses: actions/checkout@v4
+        with:
+          path: backup
+      - name: Check out project_tools sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/project_tools
+          path: project_tools
+      - name: Check out zlib sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/zlib
+          path: zlib
+      - name: Check out sshlib sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/sshlib
+          path: sshlib
+      - name: Check out cryptolib sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/cryptolib
+          path: cryptolib
+      - name: Check out HttpClient sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/HttpClient
+          path: HttpClient
+      - name: Check out terminal_styles sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/terminal_styles
+          path: terminal_styles
+      - name: Check out i18n sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/i18n
+          path: i18n
+      - name: Set up Alire
+        uses: alire-project/setup-alire@v5
+      - name: Build backup on macOS
+        working-directory: backup
+        run: alr build
+      - name: Build tests on macOS
+        working-directory: backup/tests
+        run: alr build
+      - name: Run active tests on macOS
+        working-directory: backup/tests
+        run: ./bin/tests
+      - name: Run HTTP remote live tests on macOS
+        working-directory: backup/tests
+        run: ./bin/backup_http_remote_live_tests

@@ -1,0 +1,50 @@
+name = "backup"
+description = "Ada command-line backup utility"
+version = "0.1.0-dev"
+long-description = "Ada command-line backup utility with ZIP archive, manifest, verification, restore, retention job, and remote synchronization helpers."
+
+authors = ["Bent Bracke"]
+maintainers = ["Bent Bracke <bent@bracke.dk>"]
+maintainers-logins = ["bracke"]
+licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+website = ""
+tags = ["backup"]
+
+executables = ["backup"]
+
+[[depends-on]]
+gnat_native = "=15.2.1"
+
+[[depends-on]]
+zlib = "*"
+
+[[depends-on]]
+cryptolib = "*"
+
+[[depends-on]]
+ssh_lib = "*"
+
+[[depends-on]]
+httpclient = "*"
+
+[[depends-on]]
+terminal_styles = "*"
+
+[[depends-on]]
+i18n = "*"
+
+[[depends-on]]
+project_tools = "*"
+
+[[pins]]
+zlib = { path = "../zlib" }
+ssh_lib = { path = "../sshlib" }
+cryptolib = { path = "../cryptolib" }
+httpclient = { path = "../HttpClient" }
+terminal_styles = { path = "../terminal_styles" }
+i18n = { path = "../i18n" }
+project_tools = { path = "../project_tools" }
+
+[[actions]]
+type = "test"
+command = ["sh", "-c", "cd tests && alr build && ./bin/tests"]

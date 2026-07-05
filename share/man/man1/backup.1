@@ -1,0 +1,96 @@
+.TH BACKUP 1 "2026-06-11" "backup 0.1.0-dev" "User Commands"
+.SH NAME
+backup \- Ada command-line backup utility
+.SH SYNOPSIS
+.B backup
+[options] OUT.zip INPUT...
+.br
+.B backup --list
+ARCHIVE.zip [--list-json]
+.br
+.B backup --verify
+ARCHIVE.zip [--list-json]
+.br
+.B backup --extract
+ARCHIVE.zip --output-dir DIR [restore options]
+.SH DESCRIPTION
+backup scans input trees, applies ignore rules, writes ZIP archives, verifies
+archives, restores selected paths, manages catalogs, and can upload or sync to
+file, HTTP, HTTPS, S3-compatible, provider, and SSH/SFTP remotes.
+.SH OPTIONS
+.TP
+.B --manifest
+Write a manifest into the archive.
+.TP
+.B --deterministic
+Use deterministic archive metadata where supported.
+.TP
+.B --compression=auto|store|deflate|bzip2|lzma|ppmd|zstd
+Select compression policy. bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib. ZIP method ids are stable: bzip2=12, lzma=14, zstd=93 for created archives with legacy zstd method 20 accepted on read, and ppmd=98. ppmd ZIP creation and verification/extraction require local 7z support and fail closed when unavailable.
+.TP
+.B --json-errors
+Emit machine-readable failure diagnostics.
+.TP
+.B --help-advanced
+Print a fuller option summary covering remote, catalog, job, incremental, encryption, restore, and diagnostic options.
+.TP
+.B --catalog FILE
+Attach catalog operations or post-run indexing.
+.TP
+.B --remote URL
+Select a file, HTTP, HTTPS, S3-compatible, provider, or SSH/SFTP remote.
+.TP
+.B --create-job FILE
+Write a template job configuration.
+.TP
+.B --run-job FILE
+Run a persisted job configuration.
+.SH ADVANCED OPTIONS
+.TP
+.B --remote URL
+Select a file, HTTP, HTTPS, S3-compatible, provider, or SSH/SFTP remote. SSH and scp-like remote names are resolved through ssh_lib with SFTP transfer workflows.
+.TP
+.B --remote-config FILE
+Read deterministic key=value remote settings including authentication, retry, timeout, TLS, and resume settings.
+.TP
+.B --upload, --sync, --restore-remote
+Upload a newly created archive, reconcile a managed remote namespace, or download a remote archive to a local path.
+.TP
+.B --catalog FILE
+Attach a catalog operation or request post-run indexing after archive creation or verification.
+.TP
+.B --index ARCHIVE, --query FIELD:VALUE
+Import archive metadata into a catalog or query archive and entry metadata. Supported query fields include archive, date, content, source, lineage, remote, remote-verified, verification, manifest, encrypted, size, crc32, method, kind, and retention.
+.TP
+.B --list-archives, --list-contents, --verify-catalog
+List catalog archive records, list catalog entry records, or validate catalog structure and archive references.
+.TP
+.B --create-job FILE, --run-job FILE, --job FILE
+Create or run persisted key=value backup job files.
+.TP
+.B --retention-policy POLICY
+Override the job retention policy for one run. Supported policy families are count, daily, weekly, monthly, and tiered.
+.TP
+.B --incremental-from ARCHIVE, --incremental-from-manifest FILE
+Plan an incremental archive from a previous archive or manifest.
+.TP
+.B --encrypt, --cipher aes256-gcm
+Write an encrypted archive envelope using the selected cipher.
+.TP
+.B --password-file FILE, --password-env NAME, --password-prompt
+Select the password source for encryption or encrypted restore operations.
+.SH FILES
+Example job files are installed below share/examples/backup.
+.SH SEE ALSO
+README.md, REMOTE_TRANSPORT.md, CATALOG.md, JOBS_RETENTION.md
+.TP
+.B --remote-config
+See README.md for details.
+.TP
+.B --remote-require-encrypted
+See README.md for details.
+.TP
+.B --verify-catalog
+See README.md for details.
+.SH SHELL COMPLETION
+Bash completion is provided by share/completions/backup.bash. Fish completion is provided by share/completions/backup.fish. PowerShell completion is provided by share/completions/backup.ps1. Zsh completion is provided by share/completions/_backup. Install each file into the matching shell completion directory, or source it where that shell supports sourcing, to enable option, enum-value, environment-variable, and file-path completion.

@@ -1,0 +1,12 @@
+/obj/
+/bin/
+/alire/
+/config/
+/tools/obj/
+/tools/bin/
+/tests/obj/
+/tests/bin/
+/tests/alire/
+/tests/config/
+/tests/tmp*/
+/bin/gnatprove/

@@ -1,0 +1,56 @@
+#compdef backup
+
+_arguments -s \
+  '--help' \
+  '--help-advanced' \
+  '--version' \
+  '--manifest' \
+  '--deterministic' \
+  '--dry-run' \
+  '--list:file:_files' \
+  '--list-json' \
+  '--verify:file:_files' \
+  '--extract:file:_files' \
+  '--output-dir:file:_files' \
+  '--only' \
+  '--exclude' \
+  '--skip-existing' \
+  '--overwrite' \
+  '--rename-existing' \
+  '--compression[Compression mode]:value:(auto store deflate bzip2 lzma ppmd zstd)' \
+  '--symlinks[Symlink handling]:value:(skip store-link follow)' \
+  '--ignore:file:_files' \
+  '--prefix' \
+  '--max-file-size' \
+  '--max-total-size' \
+  '--encrypt' \
+  '--password-file:file:_files' \
+  '--password-env[Password environment variable]:environment variable:_parameters -g "*export*"' \
+  '--password-prompt' \
+  '--cipher[Encryption cipher]:value:(aes256-gcm)' \
+  '--catalog:file:_files' \
+  '--index:file:_files' \
+  '--query' \
+  '--list-archives' \
+  '--list-contents' \
+  '--verify-catalog' \
+  '--remote' \
+  '--remote-config:file:_files' \
+  '--upload' \
+  '--sync' \
+  '--restore-remote' \
+  '--remote-require-encrypted' \
+  '--remote-resume' \
+  '--create-job:file:_files' \
+  '--run-job:file:_files' \
+  '--job:file:_files' \
+  '--retention-policy[Retention policy]:value:(count\: daily\: weekly\: monthly\: tiered\:)' \
+  '--incremental-from:file:_files' \
+  '--incremental-from-manifest:file:_files' \
+  '--json-errors' \
+  '--pcloud-oauth-url' \
+  '--pcloud-oauth-token' \
+  '--proton-drive-login' \
+  '--pcloud-clean-temp' \
+  '--pcloud-check' \
+  '*:file:_files'

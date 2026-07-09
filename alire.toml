@@ -7,7 +7,7 @@ authors = ["Bent Bracke"]
 maintainers = ["Bent Bracke <bent@bracke.dk>"]
 maintainers-logins = ["bracke"]
 licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
-website = ""
+website = "https://github.com/bracke/backup"
 tags = ["backup"]
 
 executables = ["backup"]
@@ -40,7 +40,7 @@ project_tools = "*"
 zlib = { path = "../zlib" }
 ssh_lib = { path = "../sshlib" }
 cryptolib = { path = "../cryptolib" }
-httpclient = { path = "../HttpClient" }
+httpclient = { path = "../httpclient" }
 terminal_styles = { path = "../terminal_styles" }
 i18n = { path = "../i18n" }
 project_tools = { path = "../project_tools" }

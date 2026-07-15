@@ -64,6 +64,14 @@ jobs:
           sudo apt-get install -y libssl-dev
           command -v pwsh || sudo snap install powershell --classic
           pwsh -NoProfile -NonInteractive -Command '$PSVersionTable.PSVersion'
+      - name: Build backup
+        # Also generates the Alire config projects for backup and its path-pinned siblings --
+        # including project_tools' config/project_tools_config.gpr, which the release checker's
+        # tools.gpr withs. The raw "gprbuild -P tools/tools.gpr" below does not generate it, so
+        # without a build first it failed on a missing project file. And nothing else built
+        # backup on Linux at all, so this is where a Linux build regression would now surface.
+        working-directory: backup
+        run: alr --non-interactive build
       - name: Build release checker
         working-directory: backup
         run: alr exec -- gprbuild -P tools/tools.gpr

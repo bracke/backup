@@ -18,10 +18,19 @@ package body Backup.Encryption is
    use Interfaces;
    use type CryptoLib.Errors.Status;
 
-   Magic : constant String := "BACKUP-ENC-19";
+   --  ENC-20 seals the payload with plain AES-GCM (CryptoLib.Ciphers.Seal_AEAD).
+   --  ENC-19 used Seal_GCM, which is the aes-gcm@openssh.com packet format: it
+   --  left the payload's first four octets in the clear as an SSH length field
+   --  and could not seal payloads shorter than four octets. The magic is bumped
+   --  so ENC-19 archives are rejected by version, not by a puzzling tag failure.
+   Magic : constant String := "BACKUP-ENC-20";
    Envelope_KDF : constant String := "bcrypt-pbkdf";
    Envelope_KDF_Rounds : constant Unsigned_32 := 512;
    AES_GCM_Algorithm : constant String := "aes256-gcm@openssh.com";
+
+   --  The envelope authenticates only its payload; the salt and nonce are bound
+   --  to the ciphertext through the KDF and the GCM nonce respectively.
+   No_Associated_Data : constant Stream_Element_Array (1 .. 0) := [others => 0];
    Salt_Length : constant Stream_Element_Offset := 16;
    Nonce_Length : constant Stream_Element_Offset := 12;
 
@@ -526,8 +535,9 @@ package body Backup.Encryption is
                        + CryptoLib.Ciphers.AES_GCM_Tag_Length));
                Crypto_Status : CryptoLib.Errors.Status;
             begin
-               Crypto_Status := CryptoLib.Ciphers.Seal_GCM
-                 (AES_GCM_Algorithm, Key_Data, Nonce_Data, 0, Plain, Wire);
+               Crypto_Status := CryptoLib.Ciphers.Seal_AEAD
+                 (AES_GCM_Algorithm, Key_Data, Nonce_Data,
+                  No_Associated_Data, Plain, Wire);
                if Crypto_Status /= CryptoLib.Errors.Ok then
                   Diagnostic := To_Unbounded_String
                     ("could not seal encrypted archive payload");
@@ -755,8 +765,9 @@ package body Backup.Encryption is
                      Plain : Stream_Element_Array (Wire'First .. Plain_Last);
                      Crypto_Status : CryptoLib.Errors.Status;
                   begin
-                     Crypto_Status := CryptoLib.Ciphers.Open_GCM
-                       (AES_GCM_Algorithm, Key_Data, Nonce_Data, 0, Wire, Plain);
+                     Crypto_Status := CryptoLib.Ciphers.Open_AEAD
+                       (AES_GCM_Algorithm, Key_Data, Nonce_Data,
+                        No_Associated_Data, Wire, Plain);
                      if Crypto_Status /= CryptoLib.Errors.Ok then
                         Diagnostic := To_Unbounded_String
                           ("encrypted archive authentication failed");

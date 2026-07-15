@@ -14,6 +14,7 @@ with Zlib;
 with Project_Tools.Files;
 with Project_Tools.Processes;
 
+with Backup.Checksums;
 with Backup.CLI;
 with Backup.Manifest;
 with Backup.Paths;
@@ -592,7 +593,7 @@ procedure Backup_Restore_Tests is
    is
       Name_Len   : constant Unsigned_16 := Unsigned_16 (Name'Length);
       Plain      : constant Stream_Element_Array := String_Bytes (Content);
-      Crc        : constant Unsigned_32 := Zlib.CRC32 (Zlib_Bytes (Content));
+      Crc        : constant Unsigned_32 := Backup.Checksums.CRC32 (Zlib_Bytes (Content));
       Comp_Len   : constant Unsigned_32 := Unsigned_32 (Content'Length + 12);
       Uncomp_Len : constant Unsigned_32 := Unsigned_32 (Content'Length);
       Local      : constant Stream_Element_Offset := 1;
@@ -674,7 +675,7 @@ procedure Backup_Restore_Tests is
       Verifier      : constant Stream_Element_Array := Derived (33 .. 34);
       Ciphertext    : Stream_Element_Array (Plain'Range);
       Auth          : CryptoLib.Macs.HMAC_SHA1_Digest;
-      Crc           : constant Unsigned_32 := Zlib.CRC32 (Plain_Zlib);
+      Crc           : constant Unsigned_32 := Backup.Checksums.CRC32 (Plain_Zlib);
       Comp_Len      : constant Unsigned_32 := Unsigned_32 (Salt'Length + 2 + Content'Length + 10);
       Uncomp_Len    : constant Unsigned_32 := Unsigned_32 (Content'Length);
       Local         : constant Stream_Element_Offset := 1;
@@ -800,8 +801,6 @@ procedure Backup_Restore_Tests is
    BZip2_Zip : constant String := Root & "/bzip2.zip";
    LZMA_Zip : constant String := Root & "/lzma.zip";
    LZMA_ZIP64_Zip : constant String := Root & "/lzma-zip64.zip";
-   PPMd_Zip : constant String := Root & "/ppmd.zip";
-   PPMd_ZIP64_Zip : constant String := Root & "/ppmd-zip64.zip";
    Link_Zip : constant String := Root & "/link.zip";
    Unsafe_Link_Zip : constant String := Root & "/unsafe-link.zip";
    Empty_Zip : constant String := Root & "/empty.zip";
@@ -876,8 +875,6 @@ begin
    Write_ZIP64_Metadata_Copy (LZMA_Zip, LZMA_ZIP64_Zip);
    if Seven_Zip_Available then
       Write_Seven_Zip_Method_Zip (BZip2_Zip, "BZip2", "bzip2.txt", "bzip2 payload" & [1 .. 4096 => 'b']);
-      Write_Seven_Zip_Method_Zip (PPMd_Zip, "PPMd", "ppmd.txt", "ppmd payload" & [1 .. 4096 => 'p']);
-      Write_ZIP64_Metadata_Copy (PPMd_Zip, PPMd_ZIP64_Zip);
    end if;
 
    Write_Encrypted_Stored_Zip
@@ -1232,30 +1229,6 @@ begin
                 "bzip2 ZIP archive extraction succeeds: " & To_String (Diagnostic));
          Check (Read_Text (Root & "/bzip2-restore/bzip2.txt") = "bzip2 payload" & [1 .. 4096 => 'b'],
                 "bzip2 ZIP archive restores file bytes");
-      end;
-      declare
-         Config : constant Backup.CLI.Configuration := Parsed
-           (Args ("--extract", PPMd_Zip, "--output-dir", Root & "/ppmd-restore"));
-         Status : constant Backup.Workflow.Execution_Status :=
-           Backup.Workflow.Execute (Config, Diagnostic);
-      begin
-         Check (Status = Backup.Workflow.Execution_Ok,
-                "PPMd ZIP archive extraction succeeds: " & To_String (Diagnostic));
-         Check (Read_Text (Root & "/ppmd-restore/ppmd.txt") = "ppmd payload" & [1 .. 4096 => 'p'],
-                "PPMd ZIP archive restores file bytes");
-      end;
-      declare
-         Config : constant Backup.CLI.Configuration := Parsed
-           (Args ("--extract", PPMd_ZIP64_Zip, "--output-dir",
-                  Root & "/ppmd-zip64-restore"));
-         Status : constant Backup.Workflow.Execution_Status :=
-           Backup.Workflow.Execute (Config, Diagnostic);
-      begin
-         Check (Status = Backup.Workflow.Execution_Ok,
-                "PPMd ZIP64 archive extraction succeeds: " & To_String (Diagnostic));
-         Check (Read_Text (Root & "/ppmd-zip64-restore/ppmd.txt") =
-                "ppmd payload" & [1 .. 4096 => 'p'],
-                "PPMd ZIP64 archive restores file bytes");
       end;
    end if;
 

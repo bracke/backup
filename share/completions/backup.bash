@@ -6,7 +6,7 @@ _backup_complete() {
     prev="${COMP_WORDS[COMP_CWORD-1]}"
 
     case "$prev" in
-        --compression) COMPREPLY=( $(compgen -W "auto store deflate bzip2 lzma ppmd zstd" -- "$cur") ); return ;;
+        --compression) COMPREPLY=( $(compgen -W "auto store deflate bzip2 lzma zstd" -- "$cur") ); return ;;
         --symlinks) COMPREPLY=( $(compgen -W "skip store-link follow" -- "$cur") ); return ;;
         --cipher) COMPREPLY=( $(compgen -W "aes256-gcm" -- "$cur") ); return ;;
         --retention-policy) COMPREPLY=( $(compgen -W "count: daily: weekly: monthly: tiered:" -- "$cur") ); return ;;
@@ -19,7 +19,7 @@ _backup_complete() {
         opt="${cur%%=*}"
         value="${cur#*=}"
         case "$opt" in
-            --compression) COMPREPLY=( $(compgen -W "auto store deflate bzip2 lzma ppmd zstd" -- "$value") ); COMPREPLY=( "${COMPREPLY[@]/#/--compression=}" ); return ;;
+            --compression) COMPREPLY=( $(compgen -W "auto store deflate bzip2 lzma zstd" -- "$value") ); COMPREPLY=( "${COMPREPLY[@]/#/--compression=}" ); return ;;
             --symlinks) COMPREPLY=( $(compgen -W "skip store-link follow" -- "$value") ); COMPREPLY=( "${COMPREPLY[@]/#/--symlinks=}" ); return ;;
             --cipher) COMPREPLY=( $(compgen -W "aes256-gcm" -- "$value") ); COMPREPLY=( "${COMPREPLY[@]/#/--cipher=}" ); return ;;
             --retention-policy) COMPREPLY=( $(compgen -W "count: daily: weekly: monthly: tiered:" -- "$value") ); COMPREPLY=( "${COMPREPLY[@]/#/--retention-policy=}" ); return ;;

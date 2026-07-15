@@ -175,7 +175,6 @@ begin
    begin
       Check_Job_Compression ("bzip2", Backup.CLI.Compression_BZip2);
       Check_Job_Compression ("lzma", Backup.CLI.Compression_LZMA);
-      Check_Job_Compression ("ppmd", Backup.CLI.Compression_PPMd);
       Check_Job_Compression ("zstd", Backup.CLI.Compression_Zstd);
    end;
 

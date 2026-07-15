@@ -17,7 +17,7 @@ _arguments -s \
   '--skip-existing' \
   '--overwrite' \
   '--rename-existing' \
-  '--compression[Compression mode]:value:(auto store deflate bzip2 lzma ppmd zstd)' \
+  '--compression[Compression mode]:value:(auto store deflate bzip2 lzma zstd)' \
   '--symlinks[Symlink handling]:value:(skip store-link follow)' \
   '--ignore:file:_files' \
   '--prefix' \

@@ -34,8 +34,8 @@ procedure Generate_Manpage is
       ".B --deterministic" & ASCII.LF &
       "Use deterministic archive metadata where supported." & ASCII.LF &
       ".TP" & ASCII.LF &
-      ".B --compression=auto|store|deflate|bzip2|lzma|ppmd|zstd" & ASCII.LF &
-      "Select compression policy. bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib. ZIP method ids are stable: bzip2=12, lzma=14, zstd=93 for created archives with legacy zstd method 20 accepted on read, and ppmd=98. ppmd ZIP creation and verification/extraction require local 7z support and fail closed when unavailable." & ASCII.LF &
+      ".B --compression=auto|store|deflate|bzip2|lzma|zstd" & ASCII.LF &
+      "Select compression policy. bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib. ZIP method ids are stable: bzip2=12, lzma=14, zstd=93 for created archives with legacy zstd method 20 accepted on read, ZIP PPMd (method 98) is not supported: it is PPMd var.I, which zlib does not implement." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --json-errors" & ASCII.LF &
       "Emit machine-readable failure diagnostics." & ASCII.LF &

@@ -8,7 +8,6 @@ with Ada.Strings.Fixed;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 with Interfaces;
-with GNAT.OS_Lib;
 
 with Project_Tools.Files;
 
@@ -26,7 +25,6 @@ procedure Backup_Zip_Tests is
    use type Backup.Manifest.Build_Result;
    use type Backup.Zip.Write_Result;
    use type Zlib.Status_Code;
-   use type GNAT.OS_Lib.String_Access;
 
    Failures : Natural := 0;
 
@@ -78,17 +76,6 @@ procedure Backup_Zip_Tests is
          Ada.Directories.Create_Path (Path);
       end if;
    end Ensure_Directory;
-
-   function Seven_Zip_Available return Boolean is
-      Path : GNAT.OS_Lib.String_Access := GNAT.OS_Lib.Locate_Exec_On_Path ("7z");
-   begin
-      if Path = null then
-         return False;
-      end if;
-
-      GNAT.OS_Lib.Free (Path);
-      return True;
-   end Seven_Zip_Available;
 
    function Decimal_Natural (Value : Natural) return String is
    begin
@@ -440,8 +427,6 @@ begin
    Check_Method_Number
      (Backup.Zip.LZMA, 14, "lzma compression uses ZIP method 14");
    Check_Method_Number
-     (Backup.Zip.PPMd, 98, "ppmd compression uses ZIP method 98");
-   Check_Method_Number
      (Backup.Zip.Zstd, 93, "zstd compression uses ZIP method 93");
 
    declare
@@ -628,12 +613,6 @@ begin
    Check_External_Method_Creation
      (Backup.Zip.LZMA, "LZMA", 14, 10,
       Central_Method_Message => "LZMA central header uses method 14");
-
-   if Seven_Zip_Available then
-      Check_External_Method_Creation
-        (Backup.Zip.PPMd, "PPMd", 98,
-         Central_Method_Message => "PPMd central header uses method 98");
-   end if;
 
    declare
       Entries : Backup.Zip.Source_Entry_Vectors.Vector;

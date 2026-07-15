@@ -1,6 +1,8 @@
 with Ada.Streams;
 with Ada.Strings.Fixed;
 with CryptoLib.Ciphers;
+with Backup.Checksums;
+with CryptoLib.Checksums;
 with CryptoLib.Errors;
 with CryptoLib.Macs;
 with Zlib;
@@ -860,7 +862,7 @@ package body Backup.Verify is
          if Computed_Uncomp /= Expected_Uncomp then
             return False;
          end if;
-         Computed_Crc := Zlib.CRC32 (Inflated);
+         Computed_Crc := Backup.Checksums.CRC32 (Inflated);
          if Inflated'Length <= 1_000_000 then
             for B of Inflated loop
                Append (Content, Character'Val (Integer (B)));
@@ -1704,12 +1706,12 @@ package body Backup.Verify is
                                  Entry_Content := Null_Unbounded_String;
                               else
                                  declare
-                                    Crc_State : Zlib.CRC32_State;
+                                    Crc_State : CryptoLib.Checksums.CRC32_State;
                                  begin
-                                    Zlib.CRC32_Reset (Crc_State);
-                                    Zlib.CRC32_Update
+                                    CryptoLib.Checksums.CRC32_Reset (Crc_State);
+                                    CryptoLib.Checksums.CRC32_Update
                                       (Crc_State, Plain_Data (Plain_First .. Plain_Last));
-                                    Computed_Crc := Zlib.CRC32_Value (Crc_State);
+                                    Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
                                  end;
                                  if To_String (Central_Item.Name) = Backup.Manifest.Manifest_Path
                                    or else (Central_Item.External_Attrs and 16#F000_0000#) = 16#A000_0000#
@@ -1734,7 +1736,7 @@ package body Backup.Verify is
                                  Plain_Zlib : constant Zlib.Byte_Array :=
                                    Zlib.Extract_ZIP_External_Entry
                                      (Bytes_To_Zlib (Data, Data'First, Data'Last),
-                                      Archive_Path, To_String (Central_Item.Name),
+                                      To_String (Central_Item.Name),
                                       Zip_Password, Codec_Status);
                                  Plain : constant Stream_Element_Array :=
                                    Zlib_To_Bytes (Plain_Zlib);

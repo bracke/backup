@@ -14,6 +14,7 @@ with Zlib;
 with Project_Tools.Files;
 with Project_Tools.Processes;
 
+with Backup.Checksums;
 with Backup.CLI;
 with Backup.Manifest;
 with Backup.Paths;
@@ -420,7 +421,7 @@ procedure Backup_Verify_Tests is
       Name_Len   : constant Unsigned_16 := Unsigned_16 (Name'Length);
       Plain      : constant Stream_Element_Array := String_Bytes (Content);
       Plain_Zlib : constant Zlib.Byte_Array := Zlib_Bytes (Content);
-      Crc        : constant Unsigned_32 := Zlib.CRC32 (Plain_Zlib);
+      Crc        : constant Unsigned_32 := Backup.Checksums.CRC32 (Plain_Zlib);
       Comp_Len   : constant Unsigned_32 := Unsigned_32 (Content'Length + 12);
       Uncomp_Len : constant Unsigned_32 := Unsigned_32 (Content'Length);
       Local      : constant Stream_Element_Offset := 1;
@@ -502,7 +503,7 @@ procedure Backup_Verify_Tests is
       Verifier      : constant Stream_Element_Array := Derived (33 .. 34);
       Ciphertext    : Stream_Element_Array (Plain'Range);
       Auth          : CryptoLib.Macs.HMAC_SHA1_Digest;
-      Crc           : constant Unsigned_32 := Zlib.CRC32 (Plain_Zlib);
+      Crc           : constant Unsigned_32 := Backup.Checksums.CRC32 (Plain_Zlib);
       Comp_Len      : constant Unsigned_32 := Unsigned_32 (Salt'Length + 2 + Content'Length + 10);
       Uncomp_Len    : constant Unsigned_32 := Unsigned_32 (Content'Length);
       Local         : constant Stream_Element_Offset := 1;
@@ -633,7 +634,7 @@ procedure Backup_Verify_Tests is
       Put_U16_At (Data, Local + 4, 20);
       Put_U16_At (Data, Local + 6, 16#0800#);
       Put_U16_At (Data, Local + 8, 8);
-      Put_U32_At (Data, Local + 14, Zlib.CRC32 (Plain));
+      Put_U32_At (Data, Local + 14, Backup.Checksums.CRC32 (Plain));
       Put_U32_At (Data, Local + 18, Comp_Len);
       Put_U32_At (Data, Local + 22, Uncomp_Len);
       Put_U16_At (Data, Local + 26, Name_Len);
@@ -645,7 +646,7 @@ procedure Backup_Verify_Tests is
       Put_U16_At (Data, Central + 6, 20);
       Put_U16_At (Data, Central + 8, 16#0800#);
       Put_U16_At (Data, Central + 10, 8);
-      Put_U32_At (Data, Central + 16, Zlib.CRC32 (Plain));
+      Put_U32_At (Data, Central + 16, Backup.Checksums.CRC32 (Plain));
       Put_U32_At (Data, Central + 20, Comp_Len);
       Put_U32_At (Data, Central + 24, Uncomp_Len);
       Put_U16_At (Data, Central + 28, Name_Len);
@@ -909,8 +910,6 @@ procedure Backup_Verify_Tests is
    BZip2_Zip  : constant String := Root & "/bzip2.zip";
    LZMA_Zip   : constant String := Root & "/lzma.zip";
    LZMA_ZIP64_Zip : constant String := Root & "/lzma-zip64.zip";
-   PPMd_Zip   : constant String := Root & "/ppmd.zip";
-   PPMd_ZIP64_Zip : constant String := Root & "/ppmd-zip64.zip";
    Link_Zip   : constant String := Root & "/links.zip";
    Manifest_Zip : constant String := Root & "/manifest.zip";
    Entries    : Backup.Zip.Source_Entry_Vectors.Vector;
@@ -975,10 +974,6 @@ begin
    if Seven_Zip_Available then
       Write_Seven_Zip_Method_Zip (BZip2_Zip, "BZip2", "bzip2.txt", "bzip2 payload" & [1 .. 4096 => 'b']);
       Verify_OK (BZip2_Zip, "bzip2 ZIP archive");
-      Write_Seven_Zip_Method_Zip (PPMd_Zip, "PPMd", "ppmd.txt", "ppmd payload" & [1 .. 4096 => 'p']);
-      Verify_OK (PPMd_Zip, "PPMd ZIP archive");
-      Write_ZIP64_Metadata_Copy (PPMd_Zip, PPMd_ZIP64_Zip);
-      Verify_OK (PPMd_ZIP64_Zip, "PPMd ZIP64 archive");
    end if;
 
 

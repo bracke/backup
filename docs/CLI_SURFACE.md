@@ -51,7 +51,7 @@ Do not edit it directly.
 | `--skip-existing` | `none` |  | Leave existing files |
 | `--overwrite` | `none` |  | Overwrite existing regular files |
 | `--rename-existing` | `none` |  | Rename existing files |
-| `--compression` | `enum` | `auto store deflate bzip2 lzma ppmd zstd` | Compression mode |
+| `--compression` | `enum` | `auto store deflate bzip2 lzma zstd` | Compression mode |
 | `--symlinks` | `enum` | `skip store-link follow` | Symlink handling |
 | `--ignore` | `file` |  | Ignore file |
 | `--prefix` | `text` |  | Archive prefix |

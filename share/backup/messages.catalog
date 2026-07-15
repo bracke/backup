@@ -7,7 +7,7 @@ en.help.verify =   backup --verify ARCHIVE.zip [--list-json]
 en.help.extract =   backup --extract ARCHIVE.zip --output-dir DIR [restore options]
 en.help.job =   backup --run-job FILE or --create-job FILE
 en.help.common = common options:
-en.help.common.line1 =   --manifest --deterministic --compression=auto/store/deflate/bzip2/lzma/ppmd/zstd
+en.help.common.line1 =   --manifest --deterministic --compression=auto/store/deflate/bzip2/lzma/zstd
 en.help.common.line2 =   --ignore FILE --prefix PATH --max-file-size N --max-total-size N
 en.help.common.line3 =   --encrypt --password-file FILE or --password-env NAME or --password-prompt
 en.help.restore = restore options:

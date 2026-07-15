@@ -170,12 +170,12 @@ begin
    Require_Text ("README.md", "--verify-catalog");
    Require_Text ("README.md", "`remote-verified` accepts");
    Require_Text ("README.md", "`encrypted` accepts the same boolean");
-   Require_Text ("README.md", "`93`, or `98` for the built-in named methods");
+   Require_Text ("README.md", "for the built-in named methods");
    Require_Text ("README.md", "--create-job FILE");
    Require_Text ("README.md", "--retention-policy POLICY");
    Require_Text ("README.md", "REMOTE_TRANSPORT.md");
    Require_Text ("README.md", "CATALOG.md");
-   Require_Text ("CATALOG.md", "Named method ids are stable: store=0, deflate=8, bzip2=12, lzma=14, legacy zstd=20, zstd=93, and ppmd=98");
+   Require_Text ("CATALOG.md", "Named method ids are stable: store=0, deflate=8, bzip2=12, lzma=14, legacy zstd=20, and zstd=93");
    Require_Text ("tests/src/backup_catalog_tests.adb", "SPARK catalog accepts documented numeric method ids");
    Require_Text ("README.md", "JOBS_RETENTION.md");
    Require_Text
@@ -311,18 +311,16 @@ begin
    Require_Text ("backup.gpr", "src/unix/");
    Require_Text ("backup.gpr", "for Main use (""backup-main.adb"")");
    Require_Text ("backup.gpr", "for Executable (""backup-main.adb"") use ""backup""");
-   Require_Text ("backup.gpr", "../zlib/zlib.gpr");
-   Require_Text ("backup.gpr", "../sshlib/SSH_Lib.gpr");
    Require_Text ("src/backup-remote.adb", "SSH_Lib.File_Transfer.Resume_Upload_File");
    Require_Text ("REMOTE_TRANSPORT.md", "ssh_lib` byte-offset resume");
    Require_Text ("REMOTE_TRANSPORT.md", "`ProxyCommand`");
    Require_Text ("README.md", "`ProxyCommand` configuration");
    Require_Text ("README.md", "ZIP bzip2, bounded ZIP-LZMA, and Zstandard creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib");
-   Require_Text ("README.md", "ZIP PPMd creation and verification/extraction use a local `7z` executable");
+   Require_Text ("README.md", "ZIP PPMd (method 98) is not supported");
    Require_Text ("README.md", "ZIP method ids are stable: bzip2 uses method 12, LZMA uses method 14, Zstandard uses method 93");
    Require_Text ("JOBS_RETENTION.md", "BZip2, bounded ZIP-LZMA, and Zstandard ZIP creation are in-process through zlib");
    Require_Text ("JOBS_RETENTION.md", "unencrypted BZip2, bounded ZIP-LZMA, and Zstandard ZIP verification/extraction, including ZIP64 metadata, are also in-process");
-   Require_Text ("JOBS_RETENTION.md", "PPMd requires local `7z` support at execution time");
+   Require_Text ("JOBS_RETENTION.md", "ZIP PPMd (method 98) is not supported");
    Require_Text ("JOBS_RETENTION.md", "ZIP method ids are stable: bzip2=12, lzma=14, zstd=93");
    Require_Text ("tests/src/backup_zip_tests.adb", "BZip2 central header uses method 12");
    Require_Text ("tests/src/backup_verify_tests.adb", "native bzip2 ZIP archive");
@@ -333,7 +331,6 @@ begin
    Require_Text ("tests/src/backup_verify_tests.adb", "legacy zstd ZIP64 archive");
    Require_Text ("tests/src/backup_verify_tests.adb", "native LZMA archive created");
    Require_Text ("tests/src/backup_verify_tests.adb", "LZMA ZIP64 archive");
-   Require_Text ("tests/src/backup_verify_tests.adb", "PPMd ZIP64 archive");
    Require_Text ("tests/src/backup_restore_tests.adb", "native bzip2 ZIP archive extraction succeeds");
    Require_Text ("tests/src/backup_restore_tests.adb", "native bzip2 ZIP64 archive extraction succeeds");
    Require_Text ("tests/src/backup_restore_tests.adb", "native zstd ZIP archive extraction succeeds");
@@ -342,7 +339,6 @@ begin
    Require_Text ("tests/src/backup_restore_tests.adb", "legacy zstd ZIP64 archive extraction succeeds");
    Require_Text ("tests/src/backup_restore_tests.adb", "create native LZMA restore fixture");
    Require_Text ("tests/src/backup_restore_tests.adb", "LZMA ZIP64 archive extraction succeeds");
-   Require_Text ("tests/src/backup_restore_tests.adb", "PPMd ZIP64 archive extraction succeeds");
    Require_Text ("../sshlib/src/ssh_lib-sessions.ads", "Proxy_Command");
    Require_Text ("../sshlib/src/ssh_lib-forwarding.ads", "type Forward_Service");
    Require_Text
@@ -350,11 +346,6 @@ begin
       "function Start_Dynamic_Forward_Service");
    Require_Text ("tests/src/backup_remote_tests.adb",
                  "ssh resume upload honors timeout precheck before opening a session");
-   Require_Text ("backup.gpr", "../cryptolib/cryptolib.gpr");
-   Require_Text ("backup.gpr", "../HttpClient/httpclient.gpr");
-   Require_Text ("backup.gpr", "../terminal_styles/terminal_styles.gpr");
-   Require_Text ("backup.gpr", "../i18n/i18n.gpr");
-   Require_Text ("backup.gpr", "../project_tools/project_tools.gpr");
    Require_Text ("alire.toml", "gnat_native = ""=15.2.1""");
    Require_Text ("tests/alire.toml", "gnat_native = ""=15.2.1""");
    Require_Text ("README.md", "gnat_native = ""=15.2.1""");
@@ -362,6 +353,19 @@ begin
    Require_Text ("tools/src/check_all.adb", "GNATLS 15.");
    Require_Text ("alire.toml", "project_tools = ");
    Require_Text ("alire.toml", "project_tools = { path = ""../project_tools"" }");
+   --  The sibling crates are Alire dependencies with path pins; Alire generates
+   --  the with-clauses into config/backup_config.gpr. backup.gpr must not import
+   --  their project files directly: a raw GPR import bypasses Alire, so nothing
+   --  builds the sibling or generates its (gitignored) config, and the path case
+   --  has to match on case-sensitive file systems.
+   Require_Text ("alire.toml", "zlib = { path = ""../zlib"" }");
+   Require_Text ("alire.toml", "ssh_lib = { path = ""../sshlib"" }");
+   Require_Text ("alire.toml", "cryptolib = { path = ""../cryptolib"" }");
+   Require_Text ("alire.toml", "httpclient = { path = ""../httpclient"" }");
+   Require_Text ("alire.toml", "terminal_styles = { path = ""../terminal_styles"" }");
+   Require_Text ("alire.toml", "i18n = { path = ""../i18n"" }");
+   Require_Text ("alire.toml", "project_tools = { path = ""../project_tools"" }");
+
    Require_Text ("backup.gpr", "-lssl");
    Require_Text ("backup.gpr", "-lcrypto");
    Require_Text ("backup.gpr", "package Install");
@@ -570,10 +574,9 @@ begin
    Require_Text ("tests/src/backup_zip_tests.adb", "BZip2 central header uses method 12");
    Require_Text ("tests/src/backup_zip_tests.adb", "Zstd central header uses method 93");
    Require_Text ("tests/src/backup_zip_tests.adb", "LZMA central header uses method 14");
-   Require_Text ("tests/src/backup_zip_tests.adb", "PPMd central header uses method 98");
-   Require_Text ("tools/cli_surface.conf", "auto store deflate bzip2 lzma ppmd zstd");
+   Require_Text ("tools/cli_surface.conf", "auto store deflate bzip2 lzma zstd");
    Require_Text ("share/man/man1/backup.1", "bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib");
-   Require_Text ("share/man/man1/backup.1", "ppmd ZIP creation and verification/extraction require local 7z support");
+   Require_Text ("share/man/man1/backup.1", "ZIP PPMd (method 98) is not supported");
    Require_Text ("share/man/man1/backup.1", "ZIP method ids are stable: bzip2=12, lzma=14, zstd=93");
    Require_Text ("tests/src/backup_zip_tests.adb", "central internal attributes mark text payload");
    Require_Text ("tests/src/backup_zip_tests.adb", "binary payload unmarked");
@@ -587,10 +590,10 @@ begin
    Require_Text ("share/man/man1/backup.1", "--remote-config");
    Require_Text ("share/completions/backup.bash", "--remote-config");
    Require_Text ("share/completions/backup.bash", "--incremental-from-manifest");
-   Require_Text ("share/completions/backup.bash", "auto store deflate bzip2 lzma ppmd zstd");
+   Require_Text ("share/completions/backup.bash", "auto store deflate bzip2 lzma zstd");
    Require_Text ("share/completions/backup.bash", "compgen -A variable");
    Require_Text ("share/completions/backup.fish", "complete -c backup");
-   Require_Text ("share/completions/backup.fish", "auto store deflate bzip2 lzma ppmd zstd");
+   Require_Text ("share/completions/backup.fish", "auto store deflate bzip2 lzma zstd");
    Require_Text ("share/completions/backup.fish", "incremental-from-manifest");
    Require_Text ("share/completions/backup.ps1", "Register-ArgumentCompleter -Native -CommandName backup");
    Require_Text ("share/completions/backup.ps1", "deflate");

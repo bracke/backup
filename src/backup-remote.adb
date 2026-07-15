@@ -21,6 +21,7 @@ with Backup.Remote_Syntax;
 with Backup.Remote_Sync_Syntax;
 with Backup.Zip;
 
+with CryptoLib.Checksums;
 with CryptoLib.Errors;
 with Project_Tools.JSON;
 with Proton_Drive;
@@ -45,7 +46,6 @@ with Http_Client.Transports.TLS;
 with Http_Client.Types;
 with Http_Client.URI;
 
-with Zlib;
 
 
 package body Backup.Remote is
@@ -4339,12 +4339,12 @@ package body Backup.Remote is
       Length : Natural) return String
    is
       File  : Ada.Streams.Stream_IO.File_Type;
-      State : Zlib.CRC32_State;
+      State : CryptoLib.Checksums.CRC32_State;
       Remaining : Natural := Length;
       Buffer : Ada.Streams.Stream_Element_Array (1 .. 16_384);
       Last   : Ada.Streams.Stream_Element_Offset;
    begin
-      Zlib.CRC32_Reset (State);
+      CryptoLib.Checksums.CRC32_Reset (State);
       Ada.Streams.Stream_IO.Open
         (File, Ada.Streams.Stream_IO.In_File, Path);
       Ada.Streams.Stream_IO.Set_Index
@@ -4357,12 +4357,12 @@ package body Backup.Remote is
          begin
             Ada.Streams.Stream_IO.Read (File, Buffer (1 .. Wanted), Last);
             exit when Last < Buffer'First;
-            Zlib.CRC32_Update (State, Buffer (Buffer'First .. Last));
+            CryptoLib.Checksums.CRC32_Update (State, Buffer (Buffer'First .. Last));
             Remaining := Remaining - Natural (Last - Buffer'First + 1);
          end;
       end loop;
       Ada.Streams.Stream_IO.Close (File);
-      return S3_CRC32_Base64 (Zlib.CRC32_Value (State));
+      return S3_CRC32_Base64 (CryptoLib.Checksums.CRC32_Value (State));
    exception
       when others =>
          if Ada.Streams.Stream_IO.Is_Open (File) then

@@ -15,7 +15,7 @@ complete -c backup -l exclude
 complete -c backup -l skip-existing
 complete -c backup -l overwrite
 complete -c backup -l rename-existing
-complete -c backup -l compression -x -a 'auto store deflate bzip2 lzma ppmd zstd' -d 'Compression mode'
+complete -c backup -l compression -x -a 'auto store deflate bzip2 lzma zstd' -d 'Compression mode'
 complete -c backup -l symlinks -x -a 'skip store-link follow' -d 'Symlink handling'
 complete -c backup -l ignore -r -F
 complete -c backup -l prefix

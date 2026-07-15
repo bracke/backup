@@ -14,8 +14,6 @@ is
             return "bzip2";
          when Backup.Zip.LZMA =>
             return "lzma";
-         when Backup.Zip.PPMd =>
-            return "ppmd";
          when Backup.Zip.Zstd =>
             return "zstd";
       end case;

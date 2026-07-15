@@ -108,8 +108,6 @@ package body Backup.Compression is
             return Backup.Zip.BZip2;
          elsif Mode = Backup.CLI.Compression_LZMA then
             return Backup.Zip.LZMA;
-         elsif Mode = Backup.CLI.Compression_PPMd then
-            return Backup.Zip.PPMd;
          elsif Mode = Backup.CLI.Compression_Zstd then
             return Backup.Zip.Zstd;
          elsif Is_Stored_Extension (Extension) then

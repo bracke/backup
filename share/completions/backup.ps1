@@ -2,7 +2,7 @@ Register-ArgumentCompleter -Native -CommandName backup -ScriptBlock {
     param($wordToComplete, $commandAst, $cursorPosition)
     $options = @('--help', '--help-advanced', '--version', '--manifest', '--deterministic', '--dry-run', '--list', '--list-json', '--verify', '--extract', '--output-dir', '--only', '--exclude', '--skip-existing', '--overwrite', '--rename-existing', '--compression','--compression=', '--symlinks', '--ignore', '--prefix', '--max-file-size', '--max-total-size', '--encrypt', '--password-file', '--password-env', '--password-prompt', '--cipher', '--catalog', '--index', '--query', '--list-archives', '--list-contents', '--verify-catalog', '--remote', '--remote-config', '--upload', '--sync', '--restore-remote', '--remote-require-encrypted', '--remote-resume', '--create-job', '--run-job', '--job', '--retention-policy', '--incremental-from', '--incremental-from-manifest', '--json-errors', '--pcloud-oauth-url', '--pcloud-oauth-token', '--proton-drive-login', '--pcloud-clean-temp', '--pcloud-check')
     $values = @{
-        '--compression' = @('auto','store','deflate','bzip2','lzma','ppmd','zstd')
+        '--compression' = @('auto','store','deflate','bzip2','lzma','zstd')
         '--symlinks' = @('skip','store-link','follow')
         '--cipher' = @('aes256-gcm')
         '--retention-policy' = @('count:','daily:','weekly:','monthly:','tiered:')

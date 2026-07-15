@@ -2,6 +2,7 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
+with CryptoLib.Checksums;
 with GNAT.OS_Lib;
 with Zlib;
 
@@ -63,8 +64,6 @@ package body Backup.Zip is
             return 12;
          when LZMA =>
             return 14;
-         when PPMd =>
-            return 98;
          when Zstd =>
             return 93;
       end case;
@@ -302,7 +301,7 @@ package body Backup.Zip is
       Buffer : Stream_Element_Array (1 .. Chunk_Size);
       Last   : Stream_Element_Offset;
       Opened : Boolean := False;
-      Crc_State : Zlib.CRC32_State;
+      Crc_State : CryptoLib.Checksums.CRC32_State;
    begin
       Crc := 0;
       Size := 0;
@@ -311,19 +310,19 @@ package body Backup.Zip is
          return Write_Unreadable_Source;
       end if;
 
-      Zlib.CRC32_Reset (Crc_State);
+      CryptoLib.Checksums.CRC32_Reset (Crc_State);
       Open (Input, In_File, Backup.Paths.To_String (Path));
       Opened := True;
       while not End_Of_File (Input) loop
          Read (Input, Buffer, Last);
          if Last >= Buffer'First then
-            Zlib.CRC32_Update (Crc_State, Buffer (Buffer'First .. Last));
+            CryptoLib.Checksums.CRC32_Update (Crc_State, Buffer (Buffer'First .. Last));
             Size := Size + Unsigned_64 (Last - Buffer'First + 1);
          end if;
       end loop;
       Close (Input);
 
-      Crc := Zlib.CRC32_Value (Crc_State);
+      Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
       return Write_Ok;
    exception
       when others =>
@@ -346,7 +345,7 @@ package body Backup.Zip is
       return Write_Result
    is
       Text      : constant String := To_String (Content);
-      Crc_State : Zlib.CRC32_State;
+      Crc_State : CryptoLib.Checksums.CRC32_State;
    begin
       Crc := 0;
       Size := Unsigned_64 (Text'Length);
@@ -364,10 +363,10 @@ package body Backup.Zip is
             Buffer (Pos) := Stream_Element (Character'Pos (Ch));
             Pos := Pos + 1;
          end loop;
-         Zlib.CRC32_Reset (Crc_State);
-         Zlib.CRC32_Update (Crc_State, Buffer);
+         CryptoLib.Checksums.CRC32_Reset (Crc_State);
+         CryptoLib.Checksums.CRC32_Update (Crc_State, Buffer);
       end;
-      Crc := Zlib.CRC32_Value (Crc_State);
+      Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
       return Write_Ok;
    end Analyze_Content;
 
@@ -408,13 +407,18 @@ package body Backup.Zip is
       end if;
 
       declare
-         Bytes : Zlib.Byte_Array (1 .. Source'Length);
+         Bytes : Stream_Element_Array
+           (1 .. Stream_Element_Offset (Source'Length));
+         State : CryptoLib.Checksums.CRC32_State;
       begin
          for I in Bytes'Range loop
             Bytes (I) :=
-              Zlib.Byte (Character'Pos (Source (Source'First + I - 1)));
+              Stream_Element
+                (Character'Pos (Source (Source'First + Natural (I) - 1)));
          end loop;
-         return Zlib.CRC32 (Bytes);
+         CryptoLib.Checksums.CRC32_Reset (State);
+         CryptoLib.Checksums.CRC32_Update (State, Bytes);
+         return CryptoLib.Checksums.CRC32_Value (State);
       end;
    end Crc32_Of_Text;
 
@@ -567,7 +571,6 @@ package body Backup.Zip is
 
    function Copy_Source_External
      (Path              : Backup.Paths.File_System_Path;
-      Temp_Base         : String;
       Method_Kind       : Compression_Method;
       Output            : in out File_Type;
       Crc               : out Unsigned_32;
@@ -583,7 +586,6 @@ package body Backup.Zip is
       Payload : constant Zlib.Byte_Array :=
         Zlib.Compress_ZIP_External_File
           (Input_Path        => Backup.Paths.To_String (Path),
-           Temp_Base         => Temp_Base,
            Method_Name       => Method_Name,
            Method            => Method,
            Crc32             => Crc,
@@ -1081,13 +1083,13 @@ package body Backup.Zip is
                         Status := Copy_Source_Deflated
                           (Item.Source_Path, Output, Compressed_Size_64);
                      end if;
-                  when BZip2 | LZMA | PPMd | Zstd =>
+                  when BZip2 | LZMA | Zstd =>
                      if Item.Has_Prepared_Payload then
                         Close (Output);
                         return Write_Unsupported_Entry;
                      end if;
                      Status := Copy_Source_External
-                       (Item.Source_Path, Output_Path, Item.Method, Output, Crc,
+                       (Item.Source_Path, Item.Method, Output, Crc,
                         Size_64, Compressed_Size_64);
                end case;
 

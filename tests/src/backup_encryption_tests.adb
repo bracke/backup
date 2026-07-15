@@ -750,7 +750,7 @@ procedure Backup_Encryption_Tests is
       Status     : Backup.Encryption.Envelope_Status;
    begin
       Ensure_Directory (Root);
-      Write_Text (Plain, "BACKUP-ENC-19-but-not-an-envelope");
+      Write_Text (Plain, "BACKUP-ENC-20-but-not-an-envelope");
       Write_Text (Dec, "existing target must survive");
 
       Check (not Backup.Encryption.Is_Encrypted (Plain),
@@ -1289,7 +1289,7 @@ procedure Backup_Encryption_Tests is
       Status     : Backup.Encryption.Envelope_Status;
    begin
       Ensure_Directory (Root);
-      Write_Text (Enc, "BACKUP-ENC-19" & ASCII.LF);
+      Write_Text (Enc, "BACKUP-ENC-20" & ASCII.LF);
       Write_Text (Dec, "stale plaintext must be removed");
       Write_Text (Pass_File, "minimal-magic-secret" & ASCII.LF);
       Source :=

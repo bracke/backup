@@ -470,14 +470,12 @@ package body Backup.CLI is
          Mode := Compression_BZip2;
       elsif Value = "lzma" then
          Mode := Compression_LZMA;
-      elsif Value = "ppmd" then
-         Mode := Compression_PPMd;
       elsif Value = "zstd" then
          Mode := Compression_Zstd;
       else
          Diagnostic := To_Unbounded_String
            ("invalid --compression value '" & Value &
-            "'; expected auto, store, deflate, bzip2, lzma, ppmd, or zstd");
+            "'; expected auto, store, deflate, bzip2, lzma, or zstd");
          return False;
       end if;
 
@@ -2407,7 +2405,7 @@ package body Backup.CLI is
                Config.Compression_Set := True;
             elsif Arg = "--compression" then
                Diagnostic := To_Unbounded_String
-                 ("--compression requires '=auto', '=store', '=deflate', '=bzip2', '=lzma', '=ppmd', or '=zstd'");
+                 ("--compression requires '=auto', '=store', '=deflate', '=bzip2', '=lzma', or '=zstd'");
                return False;
             elsif Starts_With (Arg, "--symlinks=") then
                if not Parse_Symlinks

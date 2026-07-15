@@ -1,11 +1,4 @@
 with "config/backup_config.gpr";
-with "../zlib/zlib.gpr";
-with "../sshlib/SSH_Lib.gpr";
-with "../cryptolib/cryptolib.gpr";
-with "../HttpClient/httpclient.gpr";
-with "../terminal_styles/terminal_styles.gpr";
-with "../i18n/i18n.gpr";
-with "../project_tools/project_tools.gpr";
 project Backup is
 
    Target_OS := external ("BACKUP_TARGET_OS", Backup_Config.Alire_Host_OS);

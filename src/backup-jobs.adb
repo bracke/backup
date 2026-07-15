@@ -190,13 +190,11 @@ package body Backup.Jobs is
          Result := Backup.CLI.Compression_BZip2;
       elsif Value = "lzma" then
          Result := Backup.CLI.Compression_LZMA;
-      elsif Value = "ppmd" then
-         Result := Backup.CLI.Compression_PPMd;
       elsif Value = "zstd" then
          Result := Backup.CLI.Compression_Zstd;
       else
          Diagnostic := To_Unbounded_String
-           ("compression expects auto, store, deflate, bzip2, lzma, ppmd, " &
+           ("compression expects auto, store, deflate, bzip2, lzma, " &
             "or zstd, got '" & Value & "'");
          return False;
       end if;

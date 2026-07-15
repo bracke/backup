@@ -7,8 +7,10 @@ package Backup.Compression is
    --  ZIP compression methods selected by policy use the ZIP standard
    --  method numbers represented in Backup.Zip: Stored = method 0,
    --  Deflated = method 8, BZip2 = method 12, LZMA = method 14,
-   --  Zstd = method 93, and PPMd = method 98. Unknown extensions intentionally default to
-   --  Deflated in auto mode until a later sampling phase proves otherwise.
+   --  and Zstd = method 93. ZIP PPMd (method 98) is not supported: it is PPMd
+   --  var.I, which zlib does not implement (its PPMd is var.H, for 7z
+   --  containers). Unknown extensions intentionally default to Deflated in auto
+   --  mode until a later sampling phase proves otherwise.
 
    function Method_For_Archive_Path
      (Archive_Path : String;

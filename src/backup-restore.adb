@@ -6,6 +6,7 @@ with CryptoLib.Ciphers;
 with CryptoLib.Errors;
 with CryptoLib.Macs;
 with Interfaces;
+with CryptoLib.Checksums;
 with Zlib;
 
 
@@ -581,11 +582,11 @@ package body Backup.Restore is
       In_Last     : Stream_Element_Offset;
       Out_Last    : Stream_Element_Offset;
       Out_Data    : Stream_Element_Array (1 .. Restore_Chunk_Size);
-      Crc_State   : Zlib.CRC32_State;
+      Crc_State   : CryptoLib.Checksums.CRC32_State;
    begin
       Computed_Crc := 0;
       Computed_Uncomp := 0;
-      Zlib.CRC32_Reset (Crc_State);
+      CryptoLib.Checksums.CRC32_Reset (Crc_State);
       Zlib.Inflate_Init (Filter, Header => Zlib.Raw_Deflate);
 
       while not Zlib.Stream_End (Filter) loop
@@ -603,7 +604,7 @@ package body Backup.Restore is
 
          if Out_Last >= Out_Data'First then
             Write (Output, Out_Data (Out_Data'First .. Out_Last));
-            Zlib.CRC32_Update
+            CryptoLib.Checksums.CRC32_Update
               (Crc_State, Out_Data (Out_Data'First .. Out_Last));
             Computed_Uncomp :=
               Computed_Uncomp + Unsigned_64 (Out_Last - Out_Data'First + 1);
@@ -618,7 +619,7 @@ package body Backup.Restore is
          return False;
       end if;
 
-      Computed_Crc := Zlib.CRC32_Value (Crc_State);
+      Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
       Zlib.Close (Filter);
       return True;
    exception
@@ -1314,7 +1315,6 @@ package body Backup.Restore is
                               Plain_Zlib : constant Zlib.Byte_Array :=
                                 Zlib.Extract_ZIP_External_Entry
                                   (Bytes_To_Zlib (Data, Data'First, Data'Last),
-                                   To_String (Work_Archive),
                                    To_String (Item.Archive_Path),
                                    To_String (Zip_Password), Codec_Status);
                               Plain : constant Stream_Element_Array :=
@@ -1336,11 +1336,11 @@ package body Backup.Restore is
                               else
                                  Write (Output_File, Plain);
                                  declare
-                                    Crc_State : Zlib.CRC32_State;
+                                    Crc_State : CryptoLib.Checksums.CRC32_State;
                                  begin
-                                    Zlib.CRC32_Reset (Crc_State);
-                                    Zlib.CRC32_Update (Crc_State, Plain);
-                                    Computed_Crc := Zlib.CRC32_Value (Crc_State);
+                                    CryptoLib.Checksums.CRC32_Reset (Crc_State);
+                                    CryptoLib.Checksums.CRC32_Update (Crc_State, Plain);
+                                    Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
                                  end;
                               end if;
                            end;
@@ -1391,11 +1391,11 @@ package body Backup.Restore is
                                  else
                                     Write (Output_File, Plain);
                                     declare
-                                       Crc_State : Zlib.CRC32_State;
+                                       Crc_State : CryptoLib.Checksums.CRC32_State;
                                     begin
-                                       Zlib.CRC32_Reset (Crc_State);
-                                       Zlib.CRC32_Update (Crc_State, Plain);
-                                       Computed_Crc := Zlib.CRC32_Value (Crc_State);
+                                       CryptoLib.Checksums.CRC32_Reset (Crc_State);
+                                       CryptoLib.Checksums.CRC32_Update (Crc_State, Plain);
+                                       Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
                                     end;
                                  end if;
                               elsif Item.Method = 8 then
@@ -1439,11 +1439,11 @@ package body Backup.Restore is
                                  else
                                     Write (Output_File, Plain);
                                     declare
-                                       Crc_State : Zlib.CRC32_State;
+                                       Crc_State : CryptoLib.Checksums.CRC32_State;
                                     begin
-                                       Zlib.CRC32_Reset (Crc_State);
-                                       Zlib.CRC32_Update (Crc_State, Plain);
-                                       Computed_Crc := Zlib.CRC32_Value (Crc_State);
+                                       CryptoLib.Checksums.CRC32_Reset (Crc_State);
+                                       CryptoLib.Checksums.CRC32_Update (Crc_State, Plain);
+                                       Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
                                     end;
                                  end if;
                               elsif Item.Method = 8 then
@@ -1468,12 +1468,12 @@ package body Backup.Restore is
                            else
                               Write (Output_File, Data (Payload_First .. Payload_Last));
                               declare
-                                 Crc_State : Zlib.CRC32_State;
+                                 Crc_State : CryptoLib.Checksums.CRC32_State;
                               begin
-                                 Zlib.CRC32_Reset (Crc_State);
-                                 Zlib.CRC32_Update
+                                 CryptoLib.Checksums.CRC32_Reset (Crc_State);
+                                 CryptoLib.Checksums.CRC32_Update
                                    (Crc_State, Data (Payload_First .. Payload_Last));
-                                 Computed_Crc := Zlib.CRC32_Value (Crc_State);
+                                 Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
                               end;
                            end if;
                         elsif Item.Method = 8 then

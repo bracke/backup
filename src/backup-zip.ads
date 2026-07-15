@@ -10,7 +10,6 @@ package Backup.Zip is
       Deflated,
       BZip2,
       LZMA,
-      PPMd,
       Zstd);
 
    type Write_Result is

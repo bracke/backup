@@ -91,10 +91,6 @@ begin
       = Backup.Zip.LZMA,
       "forced lzma uses ZIP method 14 for text");
    Check
-     (Method ("README.md", Backup.CLI.Compression_PPMd)
-      = Backup.Zip.PPMd,
-      "forced ppmd uses ZIP method 98 for text");
-   Check
      (Method ("README.md", Backup.CLI.Compression_Zstd)
       = Backup.Zip.Zstd,
       "forced zstd uses ZIP method 93 for text");

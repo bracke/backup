@@ -55,3 +55,6 @@ cryptolib = { path = "../../cryptolib" }
 
 [[pins]]
 ssh_lib = { path = "../../sshlib" }
+# Pins are root-only in Alire: this root builds backup, which depends on
+# httpclient, so it must be pinned here too.
+httpclient = { path = "../../httpclient" }

@@ -82,7 +82,7 @@ backup --extract ARCHIVE.zip --output-dir OUT --overwrite
 backup --extract ARCHIVE.zip --output-dir OUT --rename-existing
 ```
 
-The default restore conflict policy remains conservative: existing destination paths are rejected. `--skip-existing` leaves existing paths untouched, `--overwrite` replaces existing ordinary files only, and `--rename-existing` moves existing destinations to a `.existing.N` sibling before restore. Regular file mtime, Unix executable/file mode, uid/gid ownership metadata, extended attributes, and POSIX ACL xattrs are preserved on restore when supported by the runtime and destination filesystem. Unsupported metadata operations are skipped best-effort so archives remain portable across non-POSIX or restricted targets. Traditional ZipCrypto and WinZip AES-encrypted stored and deflated ZIP entries can be listed, verified, and extracted with `--password-file`, `--password-env`, or `--password-prompt`. Complete split ZIP sets using numbered `.z01`, `.z02`, ... parts plus the final `.zip` file are assembled for listing, verification, and extraction. ZIP bzip2, bounded ZIP-LZMA, and Zstandard creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib. ZIP method ids are stable: bzip2 uses method 12, LZMA uses method 14, Zstandard uses method 93 for created archives and accepts legacy method 20 on read, and PPMd uses method 98. ZIP PPMd creation and verification/extraction use a local `7z` executable; if `7z` is unavailable or cannot encode/decode PPMd, backup fails closed.
+The default restore conflict policy remains conservative: existing destination paths are rejected. `--skip-existing` leaves existing paths untouched, `--overwrite` replaces existing ordinary files only, and `--rename-existing` moves existing destinations to a `.existing.N` sibling before restore. Regular file mtime, Unix executable/file mode, uid/gid ownership metadata, extended attributes, and POSIX ACL xattrs are preserved on restore when supported by the runtime and destination filesystem. Unsupported metadata operations are skipped best-effort so archives remain portable across non-POSIX or restricted targets. Traditional ZipCrypto and WinZip AES-encrypted stored and deflated ZIP entries can be listed, verified, and extracted with `--password-file`, `--password-env`, or `--password-prompt`. Complete split ZIP sets using numbered `.z01`, `.z02`, ... parts plus the final `.zip` file are assembled for listing, verification, and extraction. ZIP bzip2, bounded ZIP-LZMA, and Zstandard creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib. ZIP method ids are stable: bzip2 uses method 12, LZMA uses method 14, Zstandard uses method 93 for created archives and accepts legacy method 20 on read, and PPMd uses method 98. ZIP PPMd (method 98) is not supported: it is PPMd var.I, which zlib does not implement (zlib's PPMd is var.H, used inside 7z containers).
 
 
 ## Advanced CLI Reference
@@ -164,8 +164,8 @@ Supported query fields are `archive`, `date`, `content`, `source`, `lineage`,
 `crc32`, `method`, `kind`, and `retention`. `remote-verified` accepts
 `true`/`false`, `yes`/`no`, or `1`/`0`; `encrypted` accepts the same boolean
 forms plus `envelope` and `none`; `method` accepts `store`, `deflate`, `bzip2`,
-`lzma`, `zstd`, `ppmd`, or a numeric method id (`0`, `8`, `12`, `14`, `20`,
-`93`, or `98` for the built-in named methods); and `kind` accepts `file`,
+`lzma`, `zstd`, or a numeric method id (`0`, `8`, `12`, `14`, `20`, or `93`
+for the built-in named methods); and `kind` accepts `file`,
 `directory`, `symlink`, or `manifest`. Catalog management commands are mutually
 exclusive with extraction, remote restore, and job-management commands.
 Encrypted archive indexing may combine `--index` with a password source to

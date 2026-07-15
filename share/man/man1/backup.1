@@ -25,8 +25,8 @@ Write a manifest into the archive.
 .B --deterministic
 Use deterministic archive metadata where supported.
 .TP
-.B --compression=auto|store|deflate|bzip2|lzma|ppmd|zstd
-Select compression policy. bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib. ZIP method ids are stable: bzip2=12, lzma=14, zstd=93 for created archives with legacy zstd method 20 accepted on read, and ppmd=98. ppmd ZIP creation and verification/extraction require local 7z support and fail closed when unavailable.
+.B --compression=auto|store|deflate|bzip2|lzma|zstd
+Select compression policy. bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib. ZIP method ids are stable: bzip2=12, lzma=14, zstd=93 for created archives with legacy zstd method 20 accepted on read, ZIP PPMd (method 98) is not supported: it is PPMd var.I, which zlib does not implement.
 .TP
 .B --json-errors
 Emit machine-readable failure diagnostics.

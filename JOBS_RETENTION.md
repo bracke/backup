@@ -56,7 +56,7 @@ format=backup-job-v1
 | `output_naming` | no | `exact`, `sequence` | Destination naming policy. Default is `exact`. |
 | `archive_naming` | no | `exact`, `sequence` | Compatibility alias for `output_naming`. |
 | `prefix` | no | valid archive prefix | Prefix applied to archived paths. |
-| `compression` | no | `auto`, `store`, `deflate`, `bzip2`, `lzma`, `ppmd`, `zstd` | Compression policy. Default is `auto`. BZip2, bounded ZIP-LZMA, and Zstandard ZIP creation are in-process through zlib; unencrypted BZip2, bounded ZIP-LZMA, and Zstandard ZIP verification/extraction, including ZIP64 metadata, are also in-process. ZIP method ids are stable: bzip2=12, lzma=14, zstd=93 for created archives with legacy zstd method 20 accepted on read, and ppmd=98. PPMd requires local `7z` support at execution time. |
+| `compression` | no | `auto`, `store`, `deflate`, `bzip2`, `lzma`, `zstd` | Compression policy. Default is `auto`. BZip2, bounded ZIP-LZMA, and Zstandard ZIP creation are in-process through zlib; unencrypted BZip2, bounded ZIP-LZMA, and Zstandard ZIP verification/extraction, including ZIP64 metadata, are also in-process. ZIP method ids are stable: bzip2=12, lzma=14, zstd=93 for created archives, with legacy zstd method 20 accepted on read. ZIP PPMd (method 98) is not supported: it is PPMd var.I, which zlib does not implement. |
 | `symlinks` | no | `skip`, `store-link`, `follow` | Symlink policy. Default is `skip`. |
 | `deterministic` | no | `true`, `false` | Enables deterministic-mode validation. Encrypted deterministic jobs are rejected. |
 | `manifest` | no | `true`, `false` | Include the backup manifest. |

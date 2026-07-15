@@ -25,7 +25,6 @@ package Backup.CLI is
       Compression_Deflate,
       Compression_BZip2,
       Compression_LZMA,
-      Compression_PPMd,
       Compression_Zstd);
 
    --  Parsed symlink handling policy.

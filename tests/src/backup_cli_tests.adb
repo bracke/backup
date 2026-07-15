@@ -260,13 +260,6 @@ begin
       "lzma compression parsed");
 
    Expect_OK
-     ("ppmd compression option",
-      Args ("--compression=ppmd", "out.zip", "src"), Config);
-   Check
-     (Config.Compression = Backup.CLI.Compression_PPMd,
-      "ppmd compression parsed");
-
-   Expect_OK
      ("zstd compression option",
       Args ("--compression=zstd", "out.zip", "src"), Config);
    Check

@@ -57,14 +57,18 @@ jobs:
       - name: Set up Alire
         uses: alire-project/setup-alire@v5
         with:
-          # gnatprove too: the release checker runs "alr exec -- gnatprove -P backup_spark.gpr",
-          # so gnatprove has to be in Alire's toolchain, not apt's. Ubuntu's package for it comes
-          # and goes, and the apt step below drops it on a fallback -- this makes it reliable.
-          toolchain: gnat_native=15.2.1 gnatprove gprbuild
+          toolchain: gnat_native=15.2.1 gprbuild
+      - name: Install GNATprove
+        # The release checker runs "alr exec -- gnatprove -P backup_spark.gpr". gnatprove is
+        # a regular Alire crate, not a toolchain component, so it installs separately rather
+        # than via the toolchain field -- and apt has no reliable gnatprove package.
+        run: |
+          alr install gnatprove
+          echo "$HOME/.alire/bin" >> "$GITHUB_PATH"
       - name: Install Ada toolchain
         run: |
           sudo apt-get update
-          sudo apt-get install -y gnat gprbuild gnatprove fish zsh || sudo apt-get install -y gnat gprbuild fish zsh
+          sudo apt-get install -y gnat gprbuild fish zsh
           # httpclient's C bridges include <openssl/...> and backup links -lssl -lcrypto.
           sudo apt-get install -y libssl-dev
           command -v pwsh || sudo snap install powershell --classic

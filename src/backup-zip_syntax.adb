@@ -8,7 +8,12 @@ is
      (Version : Interfaces.Unsigned_16) return Boolean
    is
    begin
-      return Version <= 63;
+      --  Only the low byte is the version number (spec x 10 -- 20 for deflate, 45 for ZIP64,
+      --  46 for bzip2). The high byte is a host/attribute field that some writers leave zero
+      --  and others -- 7-Zip on macOS among them -- fill in, which pushed the whole 16-bit
+      --  value past 63 and made a perfectly readable archive look like an unsupported one.
+      --  Standard readers judge the version by its low byte; so does this now.
+      return (Version and 16#00FF#) <= 63;
    end Is_Supported_Zip_Version;
 
    function Is_Supported_General_Flags

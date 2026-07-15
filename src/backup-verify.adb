@@ -1362,7 +1362,12 @@ package body Backup.Verify is
                               Comp_32 = 16#FFFF_FFFF#,
                               Offset_32 = 16#FFFF_FFFF#,
                               Uncomp, Comp, Local_Off, Found, Valid);
-                           if not Valid or else not Found or else Version_Needed /= 45 then
+                           --  Low byte only: a ZIP64 entry needs version 4.5, but the high
+                           --  byte is a host/attribute field a writer may fill in (see
+                           --  Is_Supported_Zip_Version). Compare the version, not the host.
+                           if not Valid or else not Found
+                             or else (Version_Needed and 16#00FF#) /= 45
+                           then
                               Diagnostic := To_Unbounded_String ("central directory ZIP64 extra field is invalid");
                               Report.Status := Verify_Invalid_Zip64;
                               return Verify_Invalid_Zip64;

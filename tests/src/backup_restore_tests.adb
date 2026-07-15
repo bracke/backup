@@ -1228,7 +1228,11 @@ begin
       begin
          Check (Status = Backup.Workflow.Execution_Ok,
                 "bzip2 ZIP archive extraction succeeds: " & To_String (Diagnostic));
-         Check (Read_Text (Root & "/bzip2-restore/bzip2.txt") = "bzip2 payload" & [1 .. 4096 => 'b'],
+         --  Check existence first: if a restore fails, this is a clean assertion failure with
+         --  the payload named, not a NAME_ERROR that takes the whole suite down.
+         Check (Ada.Directories.Exists (Root & "/bzip2-restore/bzip2.txt")
+                and then Read_Text (Root & "/bzip2-restore/bzip2.txt")
+                           = "bzip2 payload" & [1 .. 4096 => 'b'],
                 "bzip2 ZIP archive restores file bytes");
       end;
    end if;

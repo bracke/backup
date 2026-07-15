@@ -1,3 +1,4 @@
+with Backup_Test_Temp;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Streams;
@@ -50,7 +51,7 @@ procedure Backup_Verify_Tests is
    function Root return String is
    begin
       return Ada.Directories.Compose
-        ("/tmp",
+        (Backup_Test_Temp.Base,
          "backup_verify_tests");
    end Root;
 

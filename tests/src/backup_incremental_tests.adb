@@ -1,3 +1,4 @@
+with Backup_Test_Temp;
 with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
@@ -39,7 +40,7 @@ procedure Backup_Incremental_Tests is
    function Root return String is
    begin
       return Ada.Directories.Compose
-        ("/tmp",
+        (Backup_Test_Temp.Base,
          "backup_incremental_tests");
    end Root;
 

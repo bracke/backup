@@ -1,3 +1,4 @@
+with Backup_Test_Temp;
 with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
@@ -34,7 +35,7 @@ procedure Backup_Manifest_Tests is
    function Root_Path return String is
    begin
       return Ada.Directories.Compose
-        ("/tmp",
+        (Backup_Test_Temp.Base,
          "backup_manifest_tests");
    end Root_Path;
 

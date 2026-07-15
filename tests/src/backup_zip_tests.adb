@@ -1,3 +1,4 @@
+with Backup_Test_Temp;
 with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
@@ -66,7 +67,7 @@ procedure Backup_Zip_Tests is
    function Work_Root return String is
    begin
       return Ada.Directories.Compose
-        ("/tmp",
+        (Backup_Test_Temp.Base,
          "backup_zip_tests");
    end Work_Root;
 

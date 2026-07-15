@@ -1,3 +1,4 @@
+with Backup_Test_Temp;
 with Ada.Calendar;
 with Ada.Command_Line;
 with Ada.Directories;
@@ -31,7 +32,7 @@ procedure Backup_Remote_Tests is
    use type Proton_Drive.SDK_Status;
 
    Root     : constant String := Ada.Directories.Compose
-     ("/tmp", "backup_remote_tests");
+     (Backup_Test_Temp.Base, "backup_remote_tests");
    Src_Dir  : constant String := Root & "/src";
    Rem_Dir  : constant String := Root & "/remote";
    Rem_URL  : constant String := "file://" & Rem_Dir & "/";

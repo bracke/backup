@@ -1,3 +1,4 @@
+with Backup_Test_Temp;
 with Ada.Command_Line;
 with Ada.Directories;
 with Ada.Environment_Variables;
@@ -35,7 +36,7 @@ procedure Backup_Encryption_Tests is
    function Root_Path return String is
    begin
       return Ada.Directories.Compose
-        ("/tmp",
+        (Backup_Test_Temp.Base,
          "backup_encryption_tests");
    end Root_Path;
 

@@ -36,7 +36,11 @@ i18n = "*"
 [[depends-on]]
 project_tools = "*"
 
+[[depends-on]]
+hostkit = "*"
+
 [[pins]]
+hostkit = { path = "../hostkit" }
 zlib = { path = "../zlib" }
 ssh_lib = { path = "../sshlib" }
 cryptolib = { path = "../cryptolib" }
@@ -48,3 +52,9 @@ project_tools = { path = "../project_tools" }
 [[actions]]
 type = "test"
 command = ["sh", "-c", "cd tests && alr build && ./bin/tests"]
+
+# Build dependencies in the development profile (-Og) too, not the default release (-O3).
+# -O3 does not fix a latent bug, it hides one, and it is a lot of optimisation for code we
+# are about to run a test suite over.
+[build-profiles]
+"*" = "development"

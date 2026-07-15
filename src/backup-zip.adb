@@ -3,6 +3,7 @@ with Ada.Directories;
 with Ada.Streams;
 with Ada.Streams.Stream_IO;
 with CryptoLib.Checksums;
+with Hostkit.Fs;
 with GNAT.OS_Lib;
 with Zlib;
 
@@ -138,7 +139,7 @@ package body Backup.Zip is
             Unix_Mode := 16#A1FF#;
          when Source_File =>
             Unix_Mode :=
-              (if GNAT.OS_Lib.Is_Executable_File (Backup.Paths.To_String (Path)) then
+              (if Hostkit.Fs.Is_Executable (Backup.Paths.To_String (Path)) then
                   16#81ED#
                else
                   16#81A4#);

@@ -17,7 +17,11 @@ gnat_native = "=15.2.1"
 [[depends-on]]
 backup = "*"
 
+[[depends-on]]
+hostkit = "*"
+
 [[pins]]
+hostkit = { path = "../../hostkit" }
 backup = { path = ".." }
 
 [[pins]]
@@ -58,3 +62,9 @@ ssh_lib = { path = "../../sshlib" }
 # Pins are root-only in Alire: this root builds backup, which depends on
 # httpclient, so it must be pinned here too.
 httpclient = { path = "../../httpclient" }
+
+# Build dependencies in the development profile (-Og) too, not the default release (-O3).
+# -O3 does not fix a latent bug, it hides one, and it is a lot of optimisation for code we
+# are about to run a test suite over.
+[build-profiles]
+"*" = "development"

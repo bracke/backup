@@ -1,5 +1,6 @@
 with Ada.Containers;
 with Ada.Directories;
+with Hostkit.Fs;
 with GNAT.OS_Lib;
 
 with Backup.Ignore;
@@ -66,7 +67,10 @@ package body Backup.Scanner is
 
    function Is_Symbolic_Link (Path : String) return Boolean is
    begin
-      return GNAT.OS_Lib.Is_Symbolic_Link (Path);
+      --  Not GNAT.OS_Lib.Is_Symbolic_Link: it answers False for every path on Windows,
+      --  which would make every link invisible to the scanner -- so it would follow a
+      --  reparse point into a cycle, or out of the input roots, exactly what this guards.
+      return Hostkit.Fs.Is_Link (Path);
    exception
       when others =>
          return False;

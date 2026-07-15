@@ -49,6 +49,11 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/i18n
           path: i18n
+      - name: Check out hostkit sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/hostkit
+          path: hostkit
       - name: Set up Alire
         uses: alire-project/setup-alire@v5
       - name: Install Ada toolchain
@@ -134,6 +139,11 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/i18n
           path: i18n
+      - name: Check out hostkit sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/hostkit
+          path: hostkit
       - name: Set up Alire
         uses: alire-project/setup-alire@v5
       - name: Build backup on Windows
@@ -152,7 +162,9 @@ jobs:
 
   macos-build-check:
     name: macOS native build check
-    runs-on: macos-latest
+    # macos-latest is arm64, and gnat_native=15.2.1 ships no aarch64-darwin binary, so
+    # Alire cannot resolve the pin there. macos-15-intel is the x86_64 image.
+    runs-on: macos-15-intel
     steps:
       - name: Check out backup
         uses: actions/checkout@v4
@@ -193,8 +205,15 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/i18n
           path: i18n
+      - name: Check out hostkit sibling
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/hostkit
+          path: hostkit
       - name: Set up Alire
         uses: alire-project/setup-alire@v5
+        with:
+          toolchain: gnat_native=15.2.1 gprbuild
       - name: Build backup on macOS
         working-directory: backup
         run: alr build

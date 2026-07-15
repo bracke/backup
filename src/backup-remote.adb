@@ -6983,10 +6983,48 @@ package body Backup.Remote is
          null;
    end Load_AWS_Web_Identity;
 
+   --  The host's temporary directory. Hardcoding "/tmp" was wrong twice: Windows has no
+   --  /tmp, and a fixed name there for a credentials file is a shared-directory hazard --
+   --  another user could pre-create the path, or read what we wrote. Ask the host, and let
+   --  the caller build a per-run name under it.
+   function Host_Temp_Dir return String is
+      Tmpdir : constant String := Environment_Value ("TMPDIR");
+      Temp   : constant String := Environment_Value ("TEMP");
+      Tmp    : constant String := Environment_Value ("TMP");
+   begin
+      if Tmpdir'Length > 0 then
+         return Tmpdir;
+      elsif Temp'Length > 0 then
+         return Temp;
+      elsif Tmp'Length > 0 then
+         return Tmp;
+      else
+         return "/tmp";
+      end if;
+   end Host_Temp_Dir;
+
+   function Unique_Temp_File (Base : String; Suffix : String) return String is
+   begin
+      for Counter in Natural range 0 .. 10_000 loop
+         declare
+            Candidate : constant String :=
+              Base & Integer'Image (Counter) (2 .. Integer'Image (Counter)'Last) & Suffix;
+         begin
+            if not Ada.Directories.Exists (Candidate) then
+               return Candidate;
+            end if;
+         end;
+      end loop;
+
+      return Base & "overflow" & Suffix;
+   end Unique_Temp_File;
+
    procedure Load_AWS_Credential_Process (Options : in out Remote_Options) is
       Command : constant String := To_String (Options.S3_Credential_Process);
       Words   : constant String_Vectors.Vector := Shell_Words (Command);
-      Output  : constant String := "/tmp/backup-aws-credential-process.json";
+      Output  : constant String :=
+        Unique_Temp_File
+          (Ada.Directories.Compose (Host_Temp_Dir, "backup-aws-credential-process"), ".json");
       Success : Boolean := False;
       Code    : Integer := 0;
       File    : Ada.Text_IO.File_Type;
@@ -7025,10 +7063,25 @@ package body Backup.Remote is
       end loop;
       Ada.Text_IO.Close (File);
       Apply_AWS_JSON_Credentials (Options, To_String (Text));
+
+      --  The file holds the credentials the process just printed; do not leave it lying
+      --  in the temp directory once they are read.
+      if Ada.Directories.Exists (Output) then
+         Ada.Directories.Delete_File (Output);
+      end if;
    exception
       when others =>
          if Ada.Text_IO.Is_Open (File) then
             Ada.Text_IO.Close (File);
+         end if;
+
+         if Ada.Directories.Exists (Output) then
+            begin
+               Ada.Directories.Delete_File (Output);
+            exception
+               when others =>
+                  null;
+            end;
          end if;
    end Load_AWS_Credential_Process;
 

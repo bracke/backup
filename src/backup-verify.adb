@@ -1,3 +1,4 @@
+with Ada.Exceptions;
 with Ada.Streams;
 with Ada.Strings.Fixed;
 with CryptoLib.Ciphers;
@@ -1985,8 +1986,15 @@ package body Backup.Verify is
       Diagnostic := To_Unbounded_String ("archive verification ok");
       return Verify_Ok;
    exception
-      when others =>
-         Diagnostic := To_Unbounded_String ("archive could not be parsed");
+      when Parse_Error : others =>
+         --  Name the exception, not just the outcome. "could not be parsed" told us nothing
+         --  when a macOS 7-Zip archive failed here and could not be reproduced elsewhere; the
+         --  exception name and message are what say where it actually broke.
+         Diagnostic := To_Unbounded_String
+           ("archive could not be parsed: "
+            & Ada.Exceptions.Exception_Name (Parse_Error)
+            & (if Ada.Exceptions.Exception_Message (Parse_Error) = "" then ""
+               else " (" & Ada.Exceptions.Exception_Message (Parse_Error) & ")"));
          Report.Status := Verify_Malformed_Zip;
          return Verify_Malformed_Zip;
    end Verify_Archive;

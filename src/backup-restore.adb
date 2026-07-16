@@ -1535,8 +1535,12 @@ package body Backup.Restore is
       Cleanup_Temporary;
       return Restore_Ok;
    exception
-      when others =>
-         Diagnostic := To_Unbounded_String ("archive extraction failed");
+      when Error : others =>
+         Diagnostic := To_Unbounded_String
+           ("archive extraction failed: " &
+            Ada.Exceptions.Exception_Name (Error) &
+            (if Ada.Exceptions.Exception_Message (Error) = "" then ""
+             else ": " & Ada.Exceptions.Exception_Message (Error)));
          Report.Status := Restore_Internal_Error;
          Cleanup_Temporary;
          return Restore_Internal_Error;

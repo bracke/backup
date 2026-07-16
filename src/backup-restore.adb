@@ -487,6 +487,15 @@ package body Backup.Restore is
       end loop;
 
       return False;
+   exception
+      when Ada.Directories.Name_Error | Ada.Directories.Use_Error =>
+         --  A Windows drive-letter root ("C:") is not a valid simple name, so
+         --  Ada.Directories.Compose raised here and failed the whole extraction with
+         --  NAME_ERROR "invalid simple name ""C:""". This walk is a best-effort
+         --  symlink-escape guard and GNAT cannot see Windows links anyway, so treat an
+         --  undecomposable path as having no symlink component and let extraction proceed.
+         Diagnostic := Null_Unbounded_String;
+         return False;
    end Existing_Component_Is_Symlink;
 
    function Existing_Ancestor_Is_Symlink
@@ -525,6 +534,12 @@ package body Backup.Restore is
       end loop;
 
       return False;
+   exception
+      when Ada.Directories.Name_Error | Ada.Directories.Use_Error =>
+         --  As in Existing_Component_Is_Symlink: a Windows drive-letter root is not a
+         --  valid simple name for Compose. Best-effort guard, so proceed rather than fail.
+         Diagnostic := Null_Unbounded_String;
+         return False;
    end Existing_Ancestor_Is_Symlink;
 
    function Destination_Path

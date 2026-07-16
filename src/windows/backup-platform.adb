@@ -45,10 +45,10 @@ package body Backup.Platform is
       Target : out Unbounded_String)
       return Boolean
    is
-      pragma Unreferenced (Path);
    begin
-      Target := Null_Unbounded_String;
-      return False;
+      --  Read the reparse point's target via hostkit, rather than the old stub that
+      --  always failed and made the scanner treat every Windows link as broken.
+      return Hostkit.Fs.Read_Link_Target (Path, Target);
    end Read_Link_Target;
 
    function Create_Symlink

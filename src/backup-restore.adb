@@ -10,6 +10,8 @@ with CryptoLib.Checksums;
 with Zlib;
 
 
+with Hostkit.Fs;
+
 with Backup.Encryption;
 with Backup.Platform;
 with Backup.Restore_Syntax;
@@ -435,19 +437,27 @@ package body Backup.Restore is
 
    function Is_Symbolic_Link (Path : String) return Boolean is
    begin
-      return GNAT.OS_Lib.Is_Symbolic_Link (Path);
+      --  Hostkit.Fs.Is_Link, not GNAT.OS_Lib.Is_Symbolic_Link: the latter answers False
+      --  for every path on Windows (it wants an lstat there is none of), which silently
+      --  disabled the symlink-escape guards there. Hostkit asks the reparse-point bit.
+      return Hostkit.Fs.Is_Link (Path);
    exception
       when others =>
          return False;
    end Is_Symbolic_Link;
+
+   function Is_Path_Separator (Char : Character) return Boolean is
+   begin
+      return Char = '/' or else Char = '\';
+   end Is_Path_Separator;
 
    function Existing_Component_Is_Symlink
      (Path       : String;
       Diagnostic : out Unbounded_String)
       return Boolean
    is
-      Current       : Unbounded_String;
-      Segment_Start : Positive := Path'First;
+      Current   : Unbounded_String;
+      Seg_Begin : Positive;
    begin
       Diagnostic := Null_Unbounded_String;
 
@@ -455,45 +465,63 @@ package body Backup.Restore is
          return False;
       end if;
 
-      if Path (Path'First) = '/' then
-         Current := To_Unbounded_String ("/");
-         Segment_Start := Path'First + 1;
+      --  Establish the root, then walk each existing component and ask whether it is a
+      --  link. A POSIX "/..." roots at "/"; a Windows drive ("C:\..." or "C:/...") roots
+      --  at "C:", which Ada.Directories.Compose will not take as a name, so the drive is
+      --  joined by hand. Both separators are honoured -- the caller mixes them on Windows.
+      if Is_Path_Separator (Path (Path'First)) then
+         Current   := To_Unbounded_String (Path (Path'First .. Path'First));
+         Seg_Begin := Path'First + 1;
+      elsif Path'Length >= 2
+        and then Path (Path'First + 1) = ':'
+        and then (Path (Path'First) in 'A' .. 'Z'
+                  or else Path (Path'First) in 'a' .. 'z')
+      then
+         Current   := To_Unbounded_String (Path (Path'First .. Path'First + 1));
+         Seg_Begin := Path'First + 2;
+         if Seg_Begin <= Path'Last and then Is_Path_Separator (Path (Seg_Begin)) then
+            Seg_Begin := Seg_Begin + 1;
+         end if;
       else
-         Current := To_Unbounded_String (".");
+         Current   := To_Unbounded_String (".");
+         Seg_Begin := Path'First;
       end if;
 
-      for Index in Segment_Start .. Path'Last + 1 loop
-         if Index = Path'Last + 1 or else Path (Index) = '/' then
-            if Index > Segment_Start then
-               if To_String (Current) = "/" then
-                  Current := To_Unbounded_String
-                    ("/" & Path (Segment_Start .. Index - 1));
-               else
-                  Current := To_Unbounded_String
-                    (Ada.Directories.Compose
-                       (To_String (Current), Path (Segment_Start .. Index - 1)));
-               end if;
+      for Index in Seg_Begin .. Path'Last + 1 loop
+         if Index = Path'Last + 1 or else Is_Path_Separator (Path (Index)) then
+            if Index > Seg_Begin then
+               declare
+                  Segment : constant String := Path (Seg_Begin .. Index - 1);
+                  Root    : constant String := To_String (Current);
+               begin
+                  if Root = "/" then
+                     Current := To_Unbounded_String ("/" & Segment);
+                  elsif Root'Length >= 2 and then Root (Root'Last) = ':' then
+                     Current := To_Unbounded_String (Root & '\' & Segment);
+                  else
+                     Current := To_Unbounded_String
+                       (Ada.Directories.Compose (Root, Segment));
+                  end if;
 
-               if Ada.Directories.Exists (To_String (Current))
-                 and then Is_Symbolic_Link (To_String (Current))
-               then
-                  Diagnostic := To_Unbounded_String
-                    ("target path component is a symbolic link: " & To_String (Current));
-                  return True;
-               end if;
+                  if Ada.Directories.Exists (To_String (Current))
+                    and then Is_Symbolic_Link (To_String (Current))
+                  then
+                     Diagnostic := To_Unbounded_String
+                       ("target path component is a symbolic link: "
+                        & To_String (Current));
+                     return True;
+                  end if;
+               end;
             end if;
-            Segment_Start := Index + 1;
+            Seg_Begin := Index + 1;
          end if;
       end loop;
 
       return False;
    exception
       when Ada.Directories.Name_Error | Ada.Directories.Use_Error =>
-         --  A Windows drive-letter root ("C:") is not a valid simple name, so
-         --  Ada.Directories.Compose raised here and failed the whole extraction with
-         --  NAME_ERROR "invalid simple name ""C:""". This walk is a best-effort
-         --  symlink-escape guard and GNAT cannot see Windows links anyway, so treat an
-         --  undecomposable path as having no symlink component and let extraction proceed.
+         --  Defensive: an undecomposable component should not crash extraction. With the
+         --  drive-letter root handled above this should not fire, but keep the guard.
          Diagnostic := Null_Unbounded_String;
          return False;
    end Existing_Component_Is_Symlink;

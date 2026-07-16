@@ -102,8 +102,16 @@ procedure Backup_HTTP_Remote_Live_Tests is
    end Check;
 
    function Fixture_Path (Leaf_Name : String) return String is
+      --  The sibling checkout is the lowercase "httpclient" -- both the CI checkout path
+      --  and the on-disk directory. The capitalised "HttpClient" (the crate's display
+      --  name) only resolved on a case-insensitive filesystem, which is why this passed
+      --  on macOS and failed on Linux, where the TLS server could not load its cert and
+      --  reported port 0. Try the real lowercase name first, keep the old spelling as a
+      --  fallback.
       Candidates : constant array (Positive range <>) of Unbounded_String :=
-        [To_Unbounded_String ("../HttpClient/tests/fixtures/tls/" & Leaf_Name),
+        [To_Unbounded_String ("../httpclient/tests/fixtures/tls/" & Leaf_Name),
+         To_Unbounded_String ("../../httpclient/tests/fixtures/tls/" & Leaf_Name),
+         To_Unbounded_String ("../HttpClient/tests/fixtures/tls/" & Leaf_Name),
          To_Unbounded_String ("../../HttpClient/tests/fixtures/tls/" & Leaf_Name),
          To_Unbounded_String ("tests/fixtures/tls/" & Leaf_Name),
          To_Unbounded_String ("fixtures/tls/" & Leaf_Name)];
@@ -118,7 +126,7 @@ procedure Backup_HTTP_Remote_Live_Tests is
          end;
       end loop;
 
-      return "../HttpClient/tests/fixtures/tls/" & Leaf_Name;
+      return "../httpclient/tests/fixtures/tls/" & Leaf_Name;
    end Fixture_Path;
 
    function Starts_With (Value : String; Prefix : String) return Boolean is

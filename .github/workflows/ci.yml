@@ -87,6 +87,14 @@ jobs:
       - name: Run release checker
         working-directory: backup
         env:
+          # No cloud-provider secrets are configured, so each compatibility gate would
+          # hard-fail in strict CI mode. ALLOW_FIXTURE lets it fall back to the local
+          # HTTP live-test fixture instead. Setting the real *_REMOTE secrets below still
+          # runs the full live test -- Allow only matters when the remote is unset.
+          BACKUP_S3_COMPAT_ALLOW_FIXTURE: "1"
+          BACKUP_GOOGLE_DRIVE_COMPAT_ALLOW_FIXTURE: "1"
+          BACKUP_PCLOUD_COMPAT_ALLOW_FIXTURE: "1"
+          BACKUP_PROTON_DRIVE_COMPAT_ALLOW_FIXTURE: "1"
           BACKUP_S3_COMPAT_REMOTE: ${{ secrets.BACKUP_S3_COMPAT_REMOTE }}
           BACKUP_S3_COMPAT_ENDPOINT: ${{ secrets.BACKUP_S3_COMPAT_ENDPOINT }}
           BACKUP_S3_COMPAT_REGION: ${{ secrets.BACKUP_S3_COMPAT_REGION }}

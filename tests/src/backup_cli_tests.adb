@@ -132,11 +132,25 @@ procedure Backup_CLI_Tests is
    end Write_File;
 
    function Backup_Binary_Path return String is
+      --  Resolve to an absolute native path, and to the .exe on Windows. A bare relative
+      --  "bin/backup" with forward slashes did not spawn through CreateProcessW there;
+      --  Full_Name gives the OS-canonical path and the extension makes the target
+      --  unambiguous. On POSIX this is just the absolute path to bin/backup.
+      function Resolve (Base : String) return String is
+      begin
+         if Ada.Directories.Exists (Base & ".exe") then
+            return Ada.Directories.Full_Name (Base & ".exe");
+         elsif Ada.Directories.Exists (Base) then
+            return Ada.Directories.Full_Name (Base);
+         else
+            return "";
+         end if;
+      end Resolve;
    begin
-      if Ada.Directories.Exists ("bin/backup") then
-         return "bin/backup";
-      elsif Ada.Directories.Exists ("../bin/backup") then
-         return "../bin/backup";
+      if Resolve ("bin/backup") /= "" then
+         return Resolve ("bin/backup");
+      elsif Resolve ("../bin/backup") /= "" then
+         return Resolve ("../bin/backup");
       else
          return "bin/backup";
       end if;

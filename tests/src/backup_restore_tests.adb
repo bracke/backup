@@ -10,6 +10,8 @@ with CryptoLib.Ciphers;
 with CryptoLib.Errors;
 with CryptoLib.Macs;
 with GNAT.OS_Lib;
+
+with Hostkit.Fs;
 with Zlib;
 
 with Project_Tools.Files;
@@ -839,7 +841,7 @@ begin
    if Ada.Directories.Exists (Root & "/output-link") then
       Ada.Directories.Delete_File (Root & "/output-link");
    end if;
-   if GNAT.OS_Lib.Is_Symbolic_Link (Root & "/links-store/safe-link") then
+   if Hostkit.Fs.Is_Link (Root & "/links-store/safe-link") then
       Ada.Directories.Delete_File (Root & "/links-store/safe-link");
    end if;
    if Ada.Directories.Exists (Root) then
@@ -1420,7 +1422,7 @@ begin
    begin
       Check (Status = Backup.Workflow.Execution_Ok,
              "store-link symlink extraction succeeds: " & To_String (Diagnostic));
-      Check (GNAT.OS_Lib.Is_Symbolic_Link (Root & "/links-store/safe-link"),
+      Check (Hostkit.Fs.Is_Link (Root & "/links-store/safe-link"),
              "store-link restore creates symlink entry");
    end;
 
@@ -1526,7 +1528,7 @@ begin
    if Ada.Directories.Exists (Root & "/output-link") then
       Ada.Directories.Delete_File (Root & "/output-link");
    end if;
-   if GNAT.OS_Lib.Is_Symbolic_Link (Root & "/links-store/safe-link") then
+   if Hostkit.Fs.Is_Link (Root & "/links-store/safe-link") then
       Ada.Directories.Delete_File (Root & "/links-store/safe-link");
    end if;
 

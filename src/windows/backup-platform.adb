@@ -2,6 +2,8 @@ with Ada.Environment_Variables;
 with Ada.Text_IO;
 with GNAT.OS_Lib;
 
+with Hostkit.Fs;
+
 package body Backup.Platform is
    use Ada.Strings.Unbounded;
    use type Interfaces.Unsigned_32;
@@ -54,48 +56,12 @@ package body Backup.Platform is
       Link   : String)
       return Boolean
    is
-      function Try_Mklink (Directory_Link : Boolean) return Boolean is
-         use GNAT.OS_Lib;
-         Status : Integer;
-      begin
-         if Directory_Link then
-            declare
-               Args : constant Argument_List :=
-                 [new String'("/C"),
-                  new String'("mklink"),
-                  new String'("/D"),
-                  new String'(Link),
-                  new String'(Target)];
-            begin
-               Status := Spawn ("cmd.exe", Args);
-            end;
-         else
-            declare
-               Args : constant Argument_List :=
-                 [new String'("/C"),
-                  new String'("mklink"),
-                  new String'(Link),
-                  new String'(Target)];
-            begin
-               Status := Spawn ("cmd.exe", Args);
-            end;
-         end if;
-
-         return Status = 0;
-      exception
-         when others =>
-            return False;
-      end Try_Mklink;
-
-      Looks_Directory_Target : constant Boolean :=
-        Target'Length > 0
-        and then (Target (Target'Last) = '/' or else Target (Target'Last) = '\');
    begin
-      if Looks_Directory_Target then
-         return Try_Mklink (True) or else Try_Mklink (False);
-      else
-         return Try_Mklink (False) or else Try_Mklink (True);
-      end if;
+      --  Delegate to hostkit's CreateSymbolicLinkW (with the allow-unprivileged flag)
+      --  rather than spawning "cmd.exe /C mklink", which needs elevation, is brittle to
+      --  quote, and failed restore on the CI runner. Hostkit picks the directory-vs-file
+      --  flag from the target itself.
+      return Hostkit.Fs.Create_Link (Target, Link);
    end Create_Symlink;
 
    procedure Owner_Ids

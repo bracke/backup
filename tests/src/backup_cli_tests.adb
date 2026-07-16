@@ -4,7 +4,8 @@ with Ada.Directories;
 with Ada.Strings.Unbounded;
 with Ada.Text_IO;
 
-with GNAT.OS_Lib;
+with Hostkit;
+with Hostkit.Process;
 
 with Project_Tools.Files;
 
@@ -141,23 +142,49 @@ procedure Backup_CLI_Tests is
       end if;
    end Backup_Binary_Path;
 
+   --  Run the built binary with one argument, capturing stdout and stderr the way the
+   --  old GNAT.OS_Lib.Spawn (Err_To_Out => True) did -- but through Hostkit.Process,
+   --  whose Windows path resolves backup.exe from "bin/backup" and captures output via
+   --  inherited handles. The raw spawn's output-file redirection did not survive there.
+   procedure Run_Backup
+     (Argument    : String;
+      Output_Path : String;
+      Success     : out Boolean;
+      Return_Code : out Integer;
+      Output      : out Unbounded_String)
+   is
+      Err_Path : constant String := Output_Path & ".err";
+      Args     : Hostkit.String_Vectors.Vector;
+      Outcome  : Hostkit.Process.Process_Outcome;
+
+      function File_Text (Path : String) return String is
+        (if Ada.Directories.Exists (Path)
+         then Project_Tools.Files.Read_Raw_File (Path)
+         else "");
+   begin
+      Args.Append (To_Unbounded_String (Argument));
+      Outcome :=
+        Hostkit.Process.Run_Captured
+          (Program     => Backup_Binary_Path,
+           Arguments   => Args,
+           Stdout_Path => Output_Path,
+           Stderr_Path => Err_Path);
+      Success     := Outcome.Started;
+      Return_Code := Outcome.Exit_Status;
+      Output      :=
+        To_Unbounded_String (File_Text (Output_Path) & File_Text (Err_Path));
+   end Run_Backup;
+
    procedure Expect_Help_Advanced_Runtime (Output_Path : String) is
       Success     : Boolean := False;
       Return_Code : Integer := 0;
       Output      : Unbounded_String;
    begin
-      GNAT.OS_Lib.Spawn
-        (Backup_Binary_Path,
-         [new String'("--help-advanced")],
-         Output_Path,
-         Success,
-         Return_Code,
-         Err_To_Out => True);
+      Run_Backup ("--help-advanced", Output_Path, Success, Return_Code, Output);
 
       Check (Success, "binary help-advanced smoke should spawn");
       Check (Return_Code = 0, "binary help-advanced smoke should succeed");
       if Success then
-         Output := To_Unbounded_String (Project_Tools.Files.Read_Raw_File (Output_Path));
          Check
            (Index (Output, "advanced options:") /= 0,
             "binary help-advanced emits advanced section");
@@ -178,18 +205,11 @@ procedure Backup_CLI_Tests is
       Return_Code : Integer := 0;
       Output      : Unbounded_String;
    begin
-      GNAT.OS_Lib.Spawn
-        (Backup_Binary_Path,
-         [new String'("--json-errors")],
-         Output_Path,
-         Success,
-         Return_Code,
-         Err_To_Out => True);
+      Run_Backup ("--json-errors", Output_Path, Success, Return_Code, Output);
 
       Check (Success, "binary json-errors smoke should spawn");
       Check (Return_Code /= 0, "binary json-errors smoke should fail");
       if Success then
-         Output := To_Unbounded_String (Project_Tools.Files.Read_Raw_File (Output_Path));
          Check
            (Index (Output, """format"":""backup-error-v1""") /= 0,
             "binary json-errors smoke emits format marker");

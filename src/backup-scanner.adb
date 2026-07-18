@@ -58,8 +58,19 @@ package body Backup.Scanner is
    end Normalized;
 
    function Full_Normalized (Path : String) return String is
+      Resolved : constant String := Hostkit.Fs.Real_Path (Path);
    begin
-      return Normalized (Ada.Directories.Full_Name (Path));
+      --  Real_Path follows links and reparse points -- the point of the exercise, and what
+      --  Ada.Directories.Full_Name fails to do on Windows. It resolves only a path that
+      --  exists, so it returns "" for a path that does not (a proposed output, a broken or
+      --  cyclic link target); there is nothing to resolve there, so fall back to Full_Name,
+      --  which still makes such a path absolute -- the form the containment and cycle checks
+      --  need, and the form the old Full_Name gave every path on POSIX.
+      if Resolved = "" then
+         return Normalized (Ada.Directories.Full_Name (Path));
+      else
+         return Normalized (Resolved);
+      end if;
    exception
       when others =>
          return Normalized (Path);

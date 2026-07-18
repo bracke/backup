@@ -448,7 +448,7 @@ begin
          Status := Backup.Scanner.Scan (Config, Entries, Diagnostic);
          Check
            (Status = Backup.Scanner.Scan_Symlink_Broken,
-            "follow mode reports broken symlink: " & Backup.Scanner.Scan_Status'Image (Status));
+            "follow mode reports broken symlink: " & Backup.Scanner.Scan_Status'Image (Status) & " " & To_String (Diagnostic));
       end if;
    end;
 
@@ -517,7 +517,7 @@ begin
          Status := Backup.Scanner.Scan (Config, Entries, Diagnostic);
          Check
            (Status = Backup.Scanner.Scan_Symlink_Cycle,
-            "follow mode rejects symlink chain cycle: " & Backup.Scanner.Scan_Status'Image (Status));
+            "follow mode rejects symlink chain cycle: " & Backup.Scanner.Scan_Status'Image (Status) & " " & To_String (Diagnostic));
       end if;
    end;
 
@@ -538,7 +538,7 @@ begin
          Status := Backup.Scanner.Scan (Config, Entries, Diagnostic);
          Check
            (Status = Backup.Scanner.Scan_Symlink_Cycle,
-            "follow mode rejects tight symlink loop as cycle: " & Backup.Scanner.Scan_Status'Image (Status));
+            "follow mode rejects tight symlink loop as cycle: " & Backup.Scanner.Scan_Status'Image (Status) & " " & To_String (Diagnostic));
       end if;
    end;
 

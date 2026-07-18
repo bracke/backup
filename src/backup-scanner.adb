@@ -592,8 +592,18 @@ package body Backup.Scanner is
                         Current,
                         To_String (Target_Text),
                         Symlink_Outside_Input);
-                     Diagnostic := To_Unbounded_String
-                       ("symlink target outside input roots: " & Current);
+                     declare
+                        Roots_Text : Unbounded_String;
+                     begin
+                        for R of Input_Roots loop
+                           Roots_Text := Roots_Text & "<" & R & ">";
+                        end loop;
+                        Diagnostic := To_Unbounded_String
+                          ("symlink target outside input roots: " & Current
+                           & " NT=[" & Normal_Target & "]"
+                           & " NL=[" & Normal_Link & "]"
+                           & " ROOTS=" & To_String (Roots_Text));
+                     end;
                      return Scan_Symlink_Target_Outside_Input;
                   end if;
                   if not Ada.Directories.Exists (Target_Path)

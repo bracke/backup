@@ -59,6 +59,21 @@ procedure Backup_Restore_Tests is
       end if;
    end Ensure_Directory;
 
+   --  Clear a leftover entry without following it. A link goes through Hostkit, because
+   --  Ada.Directories.Delete_File is DeleteFileW on Windows and a link to a directory
+   --  needs RemoveDirectoryW -- it refused, and said "does not exist" about a path that
+   --  Exists had just followed the link to answer True for.
+   procedure Remove_Link_Or_File (Path : String) is
+   begin
+      if Hostkit.Fs.Is_Link (Path) then
+         if not Hostkit.Fs.Delete_Link (Path) then
+            Ada.Text_IO.Put_Line ("could not remove link: " & Path);
+         end if;
+      elsif Ada.Directories.Exists (Path) then
+         Ada.Directories.Delete_File (Path);
+      end if;
+   end Remove_Link_Or_File;
+
    procedure Write_Text (Path : String; Text : String) is
    begin
       Project_Tools.Files.Write_Text_File (Path, Text);
@@ -835,15 +850,9 @@ begin
    Check (not Backup.Restore_Syntax.Symlink_Target_Is_Safe ("dir\\target"),
           "SPARK restore symlink target rejects backslash");
 
-   if Ada.Directories.Exists (Root & "/symlink-parent/dir") then
-      Ada.Directories.Delete_File (Root & "/symlink-parent/dir");
-   end if;
-   if Ada.Directories.Exists (Root & "/output-link") then
-      Ada.Directories.Delete_File (Root & "/output-link");
-   end if;
-   if Hostkit.Fs.Is_Link (Root & "/links-store/safe-link") then
-      Ada.Directories.Delete_File (Root & "/links-store/safe-link");
-   end if;
+   Remove_Link_Or_File (Root & "/symlink-parent/dir");
+   Remove_Link_Or_File (Root & "/output-link");
+   Remove_Link_Or_File (Root & "/links-store/safe-link");
    if Ada.Directories.Exists (Root) then
       Project_Tools.Files.Delete_Tree (Root);
    end if;
@@ -1522,15 +1531,9 @@ begin
    Check (not Backup.Restore_Syntax.Symlink_Target_Is_Safe ("dir\\target"),
           "SPARK restore symlink target rejects backslash");
 
-   if Ada.Directories.Exists (Root & "/symlink-parent/dir") then
-      Ada.Directories.Delete_File (Root & "/symlink-parent/dir");
-   end if;
-   if Ada.Directories.Exists (Root & "/output-link") then
-      Ada.Directories.Delete_File (Root & "/output-link");
-   end if;
-   if Hostkit.Fs.Is_Link (Root & "/links-store/safe-link") then
-      Ada.Directories.Delete_File (Root & "/links-store/safe-link");
-   end if;
+   Remove_Link_Or_File (Root & "/symlink-parent/dir");
+   Remove_Link_Or_File (Root & "/output-link");
+   Remove_Link_Or_File (Root & "/links-store/safe-link");
 
    if Failures = 0 then
       Ada.Text_IO.Put_Line ("backup restore tests passed");

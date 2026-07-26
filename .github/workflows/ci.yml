@@ -34,6 +34,21 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/cryptolib
           path: cryptolib
+      - name: Check out tarlib
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/tarlib
+          path: tarlib
+      - name: Check out awklib
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/awklib
+          path: awklib
+      - name: Check out regexp
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/regexp
+          path: regexp
       - name: Check out HttpClient sibling
         uses: actions/checkout@v4
         with:
@@ -154,6 +169,21 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/cryptolib
           path: cryptolib
+      - name: Check out tarlib
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/tarlib
+          path: tarlib
+      - name: Check out awklib
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/awklib
+          path: awklib
+      - name: Check out regexp
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/regexp
+          path: regexp
       - name: Check out HttpClient sibling
         uses: actions/checkout@v4
         with:
@@ -259,6 +289,21 @@ jobs:
         with:
           repository: ${{ github.repository_owner }}/cryptolib
           path: cryptolib
+      - name: Check out tarlib
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/tarlib
+          path: tarlib
+      - name: Check out awklib
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/awklib
+          path: awklib
+      - name: Check out regexp
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository_owner }}/regexp
+          path: regexp
       - name: Check out HttpClient sibling
         uses: actions/checkout@v4
         with:

@@ -228,7 +228,6 @@ package body Backup.Paths is
       return Valid;
    end Validate_Archive_Fragment;
 
-
    function Validate_Prefix
      (Prefix : String)
       return Validation_Status
@@ -282,6 +281,7 @@ package body Backup.Paths is
       return To_String (Left) < To_String (Right);
    end "<";
 
+   overriding
    function "="
      (Left  : Archive_Path;
       Right : Archive_Path)

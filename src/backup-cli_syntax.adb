@@ -35,7 +35,6 @@ is
       return Current * 10 + Digit_Value (Ch);
    end Accumulate_Decimal;
 
-
    function Flag_Count
      (First  : Boolean;
       Second : Boolean;

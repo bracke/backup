@@ -570,9 +570,6 @@ begin
       end if;
    end;
 
-
-
-
    Cleanup_Root;
    Ensure_Directory (Root);
    Ensure_Directory (Root & "/root_ignore");
@@ -751,7 +748,6 @@ begin
         (Report.Entries.Length = 0,
          "ignored duplicate archive paths are not emitted");
    end;
-
 
    Cleanup_Root;
    Ensure_Directory (Root);

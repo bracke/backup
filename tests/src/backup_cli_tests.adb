@@ -314,7 +314,7 @@ begin
    Expect_OK
      ("verify JSON invocation",
       Args ("--verify", "--list-json", "out.zip"), Config);
-   Check (Config.Verify and Config.List_JSON, "verify list-json parsed");
+   Check (Config.Verify and then Config.List_JSON, "verify list-json parsed");
 
    Expect_OK
      ("size limits and prefix",

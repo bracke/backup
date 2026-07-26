@@ -95,14 +95,18 @@ procedure Generate_CLI_Surface is
       T : Unbounded_String;
    begin
       Append (T, "# CLI Surface Contract" & ASCII.LF & ASCII.LF);
-      Append (T, "This file is generated from `tools/cli_surface.conf` by `tools/bin/generate_cli_surface`." & ASCII.LF);
+      Append
+           (T,
+            "This file is generated from `tools/cli_surface.conf` by `tools/bin/generate_cli_surface`." & ASCII.LF);
       Append (T, "Do not edit it directly." & ASCII.LF & ASCII.LF);
       Append (T, "## Command Modes" & ASCII.LF & ASCII.LF);
       Append (T, "| Mode | Selector | Positionals | Notes |" & ASCII.LF);
       Append (T, "| --- | --- | --- | --- |" & ASCII.LF);
       for R of Rows loop
          if S (R.Tag) = "mode" then
-            Append (T, "| `" & S (R.F2) & "` | `" & S (R.F3) & "` | `" & S (R.F4) & "` | " & S (R.F5) & " |" & ASCII.LF);
+            Append
+                 (T,
+                  "| `" & S (R.F2) & "` | `" & S (R.F3) & "` | `" & S (R.F4) & "` | " & S (R.F5) & " |" & ASCII.LF);
          end if;
       end loop;
       Append (T, ASCII.LF & "## Conflict Groups" & ASCII.LF & ASCII.LF);
@@ -110,7 +114,9 @@ procedure Generate_CLI_Surface is
       Append (T, "| --- | --- | --- | --- |" & ASCII.LF);
       for R of Rows loop
          if S (R.Tag) = "conflict" then
-            Append (T, "| `" & S (R.F2) & "` | `" & S (R.F3) & "` | `" & S (R.F4) & "` | " & S (R.F5) & " |" & ASCII.LF);
+            Append
+                 (T,
+                  "| `" & S (R.F2) & "` | `" & S (R.F3) & "` | `" & S (R.F4) & "` | " & S (R.F5) & " |" & ASCII.LF);
          end if;
       end loop;
       Append (T, ASCII.LF & "## Options" & ASCII.LF & ASCII.LF);
@@ -167,24 +173,42 @@ procedure Generate_CLI_Surface is
       end loop;
       Append (Ads, ");" & ASCII.LF & ASCII.LF);
       Append (Ads, "   subtype Basic_Help_Line is Help_Line range Title .. Json_Errors;" & ASCII.LF);
-      Append (Ads, "   subtype Advanced_Help_Line is Help_Line range Advanced .. " & S (Last_Advanced) & ";" & ASCII.LF & ASCII.LF);
+      Append (Ads, "   subtype Advanced_Help_Line is Help_Line range Advanced .. "
+         & S (Last_Advanced)
+         & ";"
+         & ASCII.LF
+         & ASCII.LF);
       Append (Ads, "   function Message_Key (Line : Help_Line) return String;" & ASCII.LF & ASCII.LF);
       Append (Ads, "   function Display_Role (Line : Help_Line) return Help_Role;" & ASCII.LF);
       Append (Ads, "end Backup.CLI_Surface;");
       Emit ("src/backup-cli_surface.ads", S (Ads));
 
       Append (Adb, "--  Generated from tools/cli_surface.conf by tools/bin/generate_cli_surface." & ASCII.LF);
-      Append (Adb, "package body Backup.CLI_Surface" & ASCII.LF & "  with SPARK_Mode => On" & ASCII.LF & "is" & ASCII.LF);
-      Append (Adb, "   function Message_Key (Line : Help_Line) return String is" & ASCII.LF & "   begin" & ASCII.LF & "      case Line is" & ASCII.LF);
+      Append
+           (Adb,
+            "package body Backup.CLI_Surface" & ASCII.LF & "  with SPARK_Mode => On" & ASCII.LF & "is" & ASCII.LF);
+      Append (Adb, "   function Message_Key (Line : Help_Line) return String is"
+         & ASCII.LF
+         & "   begin"
+         & ASCII.LF
+         & "      case Line is"
+         & ASCII.LF);
       for R of Rows loop
          if S (R.Tag) = "help" then
             Append (Adb, "         when " & S (R.F2) & " => return """ & S (R.F3) & """;" & ASCII.LF);
          elsif S (R.Tag) = "advanced" then
-            Append (Adb, "         when Advanced_" & S (R.F2) & " => return ""help.advanced." & S (R.F2) & """;" & ASCII.LF);
+            Append
+                 (Adb,
+                  "         when Advanced_" & S (R.F2) & " => return ""help.advanced." & S (R.F2) & """;" & ASCII.LF);
          end if;
       end loop;
       Append (Adb, "      end case;" & ASCII.LF & "   end Message_Key;" & ASCII.LF & ASCII.LF);
-      Append (Adb, "   function Display_Role (Line : Help_Line) return Help_Role is" & ASCII.LF & "   begin" & ASCII.LF & "      case Line is" & ASCII.LF);
+      Append (Adb, "   function Display_Role (Line : Help_Line) return Help_Role is"
+         & ASCII.LF
+         & "   begin"
+         & ASCII.LF
+         & "      case Line is"
+         & ASCII.LF);
       for R of Rows loop
          if S (R.Tag) = "help" then
             Append (Adb, "         when " & S (R.F2) & " => return Role_" & S (R.F4) & ";" & ASCII.LF);

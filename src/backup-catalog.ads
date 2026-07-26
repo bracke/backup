@@ -164,8 +164,6 @@ package Backup.Catalog is
       Diagnostic : out Ada.Strings.Unbounded.Unbounded_String)
       return Catalog_Status;
 
-
-
    function Remove_Indexed_Archive
      (Catalog_Path : String;
       Archive_Path : String;
@@ -184,7 +182,6 @@ package Backup.Catalog is
       Catalog           : out Catalog_Data;
       Diagnostic        : out Ada.Strings.Unbounded.Unbounded_String)
       return Catalog_Status;
-
 
    function Record_Verification_Result
      (Catalog_Path : String;

@@ -3,14 +3,14 @@ with Ada.Directories;
 with Ada.Environment_Variables;
 with Ada.Strings.Unbounded;
 
-with I18N.Arguments;
-with I18N.Result;
-with I18N.Runtime;
+with Messages.Arguments;
+with Messages.Result;
+with Messages.Runtime;
 
 package body Backup.Messages is
    use Ada.Strings.Unbounded;
 
-   Runtime : I18N.Runtime.Instance;
+   Runtime : Standard.Messages.Runtime.Instance;
    Locale  : Unbounded_String := To_Unbounded_String ("en");
 
    function Catalog_Path return String is
@@ -118,20 +118,20 @@ package body Backup.Messages is
    function Render_Once
      (Locale_Name : String;
       Key         : String;
-      Args        : I18N.Arguments.Arguments;
+      Args        : Standard.Messages.Arguments.Arguments;
       Text        : out Unbounded_String) return Boolean
    is
-      use type I18N.Result.Render_Status;
+      use type Standard.Messages.Result.Render_Status;
 
-      Result : constant I18N.Result.Render_Result :=
-        I18N.Runtime.Render
+      Result : constant Standard.Messages.Result.Render_Result :=
+        Standard.Messages.Runtime.Render
           (Item      => Runtime,
            Locale    => Locale_Name,
            Key       => Key,
            Arguments => Args);
    begin
-      if Result.Status = I18N.Result.Success then
-         Text := To_Unbounded_String (I18N.Result.Output_Text (Result.Text));
+      if Result.Status = Standard.Messages.Result.Success then
+         Text := To_Unbounded_String (Standard.Messages.Result.Output_Text (Result.Text));
          return True;
       else
          Text := Null_Unbounded_String;
@@ -154,7 +154,7 @@ package body Backup.Messages is
       return "";
    end Parent_Locale;
 
-   function Render (Key : String; Args : I18N.Arguments.Arguments)
+   function Render (Key : String; Args : Standard.Messages.Arguments.Arguments)
       return String
    is
       Locale_Name : Unbounded_String := Locale;
@@ -177,7 +177,7 @@ package body Backup.Messages is
    end Render;
 
    function Text (Key : String) return String is
-      Args : I18N.Arguments.Arguments;
+      Args : Standard.Messages.Arguments.Arguments;
    begin
       return Render (Key, Args);
    end Text;
@@ -187,13 +187,13 @@ package body Backup.Messages is
       Arg_Key   : String;
       Arg_Value : String) return String
    is
-      Args : I18N.Arguments.Arguments;
+      Args : Standard.Messages.Arguments.Arguments;
    begin
-      I18N.Arguments.Set (Args, Arg_Key, Arg_Value);
+      Standard.Messages.Arguments.Set (Args, Arg_Key, Arg_Value);
       return Render (Key, Args);
    end Text;
 
 begin
-   I18N.Runtime.Initialize (Runtime, Catalog_Path);
+   Standard.Messages.Runtime.Initialize (Runtime, Catalog_Path);
    Detect_System_Locale;
 end Backup.Messages;

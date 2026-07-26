@@ -1,0 +1,41 @@
+name = "backup_tools"
+description = "Release and verification tooling for the backup crate"
+version = "0.1.0-dev"
+
+authors = ["Bent Bracke"]
+maintainers = ["Bent Bracke <bent@bracke.dk>"]
+maintainers-logins = ["bracke"]
+licenses = "MIT OR Apache-2.0 WITH LLVM-exception"
+website = ""
+tags = ["tools", "checks"]
+project-files = ["tools.gpr"]
+
+executables = [
+  "check_all",
+  "package_release",
+  "generate_manpage",
+  "check_manpage",
+  "generate_cli_surface",
+  "check_cli_surface",
+  "check_bash_completion",
+  "check_fish_completion",
+  "check_zsh_completion",
+  "check_powershell_completion",
+  "check_s3_compatibility",
+  "check_google_drive_compatibility",
+  "check_pcloud_compatibility",
+  "check_proton_drive_compatibility",
+]
+
+[[depends-on]]
+gnat_native = "=15.2.1"
+
+[[depends-on]]
+project_tools = "*"
+
+[[pins]]
+project_tools = { path = "../../project_tools" }
+
+# Build dependencies in the development profile (-Og) too, not the default release (-O3).
+[build-profiles]
+"*" = "development"

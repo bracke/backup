@@ -35,13 +35,17 @@ procedure Generate_Manpage is
       "Use deterministic archive metadata where supported." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --compression=auto|store|deflate|bzip2|lzma|zstd" & ASCII.LF &
-      "Select compression policy. bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib. ZIP method ids are stable: bzip2=12, lzma=14, zstd=93 for created archives with legacy zstd method 20 accepted on read, ZIP PPMd (method 98) is not supported: it is PPMd var.I, which zlib does not implement." & ASCII.LF &
+      "Select compression policy. bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verification/extra"
+        & "ction for classic and ZIP64 metadata are in-process through zlib. ZIP method ids are stable: bzip2=12, lzma="
+        & "14, zstd=93 for created archives with legacy zstd method 20 accepted on read, ZIP PPMd (method 98) is not su"
+        & "pported: it is PPMd var.I, which zlib does not implement." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --json-errors" & ASCII.LF &
       "Emit machine-readable failure diagnostics." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --help-advanced" & ASCII.LF &
-      "Print a fuller option summary covering remote, catalog, job, incremental, encryption, restore, and diagnostic options." & ASCII.LF &
+      "Print a fuller option summary covering remote, catalog, job, incremental, encryption, restore, and diagnosti"
+        & "c options." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --catalog FILE" & ASCII.LF &
       "Attach catalog operations or post-run indexing." & ASCII.LF &
@@ -57,28 +61,37 @@ procedure Generate_Manpage is
       ".SH ADVANCED OPTIONS" & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --remote URL" & ASCII.LF &
-      "Select a file, HTTP, HTTPS, S3-compatible, provider, or SSH/SFTP remote. SSH and scp-like remote names are resolved through ssh_lib with SFTP transfer workflows." & ASCII.LF &
+      "Select a file, HTTP, HTTPS, S3-compatible, provider, or SSH/SFTP remote. SSH and scp-like remote names are r"
+        & "esolved through ssh_lib with SFTP transfer workflows." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --remote-config FILE" & ASCII.LF &
-      "Read deterministic key=value remote settings including authentication, retry, timeout, TLS, and resume settings." & ASCII.LF &
+      "Read deterministic key=value remote settings including authentication, retry, timeout, TLS, and resume settings."
+         & ASCII.LF
+         &
       ".TP" & ASCII.LF &
       ".B --upload, --sync, --restore-remote" & ASCII.LF &
-      "Upload a newly created archive, reconcile a managed remote namespace, or download a remote archive to a local path." & ASCII.LF &
+      "Upload a newly created archive, reconcile a managed remote namespace, or download a remote archive to a loca"
+        & "l path." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --catalog FILE" & ASCII.LF &
       "Attach a catalog operation or request post-run indexing after archive creation or verification." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --index ARCHIVE, --query FIELD:VALUE" & ASCII.LF &
-      "Import archive metadata into a catalog or query archive and entry metadata. Supported query fields include archive, date, content, source, lineage, remote, remote-verified, verification, manifest, encrypted, size, crc32, method, kind, and retention." & ASCII.LF &
+      "Import archive metadata into a catalog or query archive and entry metadata. Supported query fields include a"
+        & "rchive, date, content, source, lineage, remote, remote-verified, verification, manifest, encrypted, size, cr"
+        & "c32, method, kind, and retention." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --list-archives, --list-contents, --verify-catalog" & ASCII.LF &
-      "List catalog archive records, list catalog entry records, or validate catalog structure and archive references." & ASCII.LF &
+      "List catalog archive records, list catalog entry records, or validate catalog structure and archive references."
+         & ASCII.LF
+         &
       ".TP" & ASCII.LF &
       ".B --create-job FILE, --run-job FILE, --job FILE" & ASCII.LF &
       "Create or run persisted key=value backup job files." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --retention-policy POLICY" & ASCII.LF &
-      "Override the job retention policy for one run. Supported policy families are count, daily, weekly, monthly, and tiered." & ASCII.LF &
+      "Override the job retention policy for one run. Supported policy families are count, daily, weekly, monthly, "
+        & "and tiered." & ASCII.LF &
       ".TP" & ASCII.LF &
       ".B --incremental-from ARCHIVE, --incremental-from-manifest FILE" & ASCII.LF &
       "Plan an incremental archive from a previous archive or manifest." & ASCII.LF &
@@ -102,7 +115,11 @@ procedure Generate_Manpage is
       ".B --verify-catalog" & ASCII.LF &
       "See README.md for details." & ASCII.LF &
       ".SH SHELL COMPLETION" & ASCII.LF &
-      "Bash completion is provided by share/completions/backup.bash. Fish completion is provided by share/completions/backup.fish. PowerShell completion is provided by share/completions/backup.ps1. Zsh completion is provided by share/completions/_backup. Install each file into the matching shell completion directory, or source it where that shell supports sourcing, to enable option, enum-value, environment-variable, and file-path completion.";
+      "Bash completion is provided by share/completions/backup.bash. Fish completion is provided by share/completio"
+      & "ns/backup.fish. PowerShell completion is provided by share/completions/backup.ps1. Zsh completion is provide"
+      & "d by share/completions/_backup. Install each file into the matching shell completion directory, or source it"
+      & " where that shell supports sourcing, to enable option, enum-value, environment-variable, and file-path compl"
+      & "etion.";
 begin
    Backup_Tool_Support.Write_Text (Out_Path, Content);
 end Generate_Manpage;

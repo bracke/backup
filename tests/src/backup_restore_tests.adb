@@ -107,14 +107,30 @@ procedure Backup_Restore_Tests is
    is
       Result : Backup.CLI.String_Vectors.Vector;
    begin
-      if A01 /= "" then Result.Append (A01); end if;
-      if A02 /= "" then Result.Append (A02); end if;
-      if A03 /= "" then Result.Append (A03); end if;
-      if A04 /= "" then Result.Append (A04); end if;
-      if A05 /= "" then Result.Append (A05); end if;
-      if A06 /= "" then Result.Append (A06); end if;
-      if A07 /= "" then Result.Append (A07); end if;
-      if A08 /= "" then Result.Append (A08); end if;
+      if A01 /= "" then
+         Result.Append (A01);
+      end if;
+      if A02 /= "" then
+         Result.Append (A02);
+      end if;
+      if A03 /= "" then
+         Result.Append (A03);
+      end if;
+      if A04 /= "" then
+         Result.Append (A04);
+      end if;
+      if A05 /= "" then
+         Result.Append (A05);
+      end if;
+      if A06 /= "" then
+         Result.Append (A06);
+      end if;
+      if A07 /= "" then
+         Result.Append (A07);
+      end if;
+      if A08 /= "" then
+         Result.Append (A08);
+      end if;
       return Result;
    end Args;
 
@@ -267,8 +283,6 @@ procedure Backup_Restore_Tests is
       Data (Pos + 1) := Ada.Streams.Stream_Element (Shift_Right (Value, 8));
    end Put_U16_At;
 
-
-
    procedure Put_U32_At
      (Data  : in out Ada.Streams.Stream_Element_Array;
       Pos   : Ada.Streams.Stream_Element_Offset;
@@ -305,8 +319,6 @@ procedure Backup_Restore_Tests is
       Data (Pos + 7) :=
         Ada.Streams.Stream_Element (Shift_Right (Value, 56) and 16#FF#);
    end Put_U64_At;
-
-
 
    function Seven_Zip_Available return Boolean is
    begin
@@ -432,7 +444,7 @@ procedure Backup_Restore_Tests is
         Eocd + Added;
       Extended : Ada.Streams.Stream_Element_Array (1 .. Data'Length + Added);
    begin
-      pragma Assert (Local > 0 and Central > Local and Eocd > Central,
+      pragma Assert (Local > 0 and then Central > Local and then Eocd > Central,
                      "one-entry ZIP fixture has local, central, and EOCD records");
 
       for Pos in Data'First .. (if Has_Descriptor then Descriptor + 7 else Central - 1) loop
@@ -488,7 +500,7 @@ procedure Backup_Restore_Tests is
       Central : constant Ada.Streams.Stream_Element_Offset :=
         Find_Signature (Data, 16#0201_4B50#);
    begin
-      pragma Assert (Local > 0 and Central > Local,
+      pragma Assert (Local > 0 and then Central > Local,
                      "one-entry Zstd ZIP fixture has local and central records");
       Check (U16_At (Data, Local + 8) = 93,
              "legacy zstd fixture source local method is 93");
@@ -510,8 +522,6 @@ procedure Backup_Restore_Tests is
            Ada.Streams.Stream_Element (Character'Pos (Name (I)));
       end loop;
    end Put_Name;
-
-
 
    function Zlib_Bytes (Text : String) return Zlib.Byte_Array is
       Result : Zlib.Byte_Array (1 .. Text'Length);
@@ -660,7 +670,6 @@ procedure Backup_Restore_Tests is
       Put_U32_At (Data, Eocd + 16, Unsigned_32 (Central - 1));
       Write_All (Path, Data);
    end Write_Encrypted_Stored_Zip;
-
 
    procedure Put_Stream_Bytes
      (Data  : in out Stream_Element_Array;
@@ -906,7 +915,6 @@ begin
       Check (Read_Text (Root & "/zipcrypto-restore/secret.txt") = "classified",
              "traditional encrypted ZIP extraction restores plaintext");
    end;
-
 
    Write_AES_Stored_Zip (AES_Zip, "aes.txt", "aes secret", "secret");
    declare
@@ -1512,7 +1520,6 @@ begin
       Check (Index (Diagnostic, "--output-dir") /= 0,
              "missing output directory diagnostic names option");
    end;
-
 
    Check (Backup.Restore_Syntax.Path_Matches_Filter ("dir", "dir/a.txt"),
           "SPARK restore filter matches child path");

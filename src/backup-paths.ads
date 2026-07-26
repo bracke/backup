@@ -57,6 +57,7 @@ package Backup.Paths is
       Right : Archive_Path)
       return Boolean;
 
+   overriding
    function "="
      (Left  : Archive_Path;
       Right : Archive_Path)

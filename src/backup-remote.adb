@@ -46,8 +46,6 @@ with Http_Client.Transports.TLS;
 with Http_Client.Types;
 with Http_Client.URI;
 
-
-
 package body Backup.Remote is
    use Ada.Strings.Unbounded;
    use type Ada.Containers.Count_Type;
@@ -156,8 +154,6 @@ package body Backup.Remote is
       Diagnostic : out Unbounded_String) return Remote_Options;
 
    function JSON_Field (Text : String; Name : String) return String;
-
-
 
    function Read_Text_File (Path : String) return String;
 
@@ -721,7 +717,6 @@ package body Backup.Remote is
       end loop;
       return To_String (Result);
    end Percent_Encode_Path;
-
 
    function URL_Host (URL : String) return String;
 
@@ -1641,7 +1636,6 @@ package body Backup.Remote is
       return Remote_Ok;
    end HTTP_Get;
 
-
    function Google_Drive_Token_URI (Options : Remote_Options) return String is
       Value : constant String := To_String (Options.Google_Drive_Token_URI);
    begin
@@ -1801,8 +1795,8 @@ package body Backup.Remote is
    is
    begin
       return "{""name"":""" &
-        JSON_Escape (Google_Drive_Name (Location, Object_Name)) &
-        """,""parents"": [""" & JSON_Escape (Google_Drive_Folder_Id (Location)) &
+        Json_Escape (Google_Drive_Name (Location, Object_Name)) &
+        """,""parents"": [""" & Json_Escape (Google_Drive_Folder_Id (Location)) &
         """]}";
    end Google_Drive_Metadata_JSON;
 
@@ -2679,7 +2673,8 @@ package body Backup.Remote is
         (if Error_Text'Length > 0 then Error_Text else Message);
       Advice      : constant String :=
         (if PCloud_Authentication_Result (Result_Code) then
-           "; check token validity and whether pcloud_api_base matches the account region (US https://api.pcloud.com, EU https://eapi.pcloud.com)"
+           "; check token validity and whether pcloud_api_base matches the account region (US https://api.pcloud.co"
+           & "m, EU https://eapi.pcloud.com)"
          elsif Result_Code = 2_001 then
            "; check generated pCloud object names and folder path characters"
          elsif Result_Code = 2_005 then
@@ -3223,16 +3218,16 @@ package body Backup.Remote is
                  or else (Code = 200 and then Result_Code = 0)
                then
                   return Remote_Ok;
-               elsif PCloud_Retryable_Response (Code, Response_Body) and then
-              Backup.Remote_Syntax.Retry_Available
-                (Attempt, Options.Retry_Count)
-            then
-               null;
-            else
-               Diagnostic := To_Unbounded_String
-                 (PCloud_Error_Diagnostic
-                    ("deletefile", Code, Http_Client.Clients.Response_Text (Result)));
-               return Remote_Delete_Refused;
+               elsif PCloud_Retryable_Response (Code, Response_Body)
+                 and then Backup.Remote_Syntax.Retry_Available
+                            (Attempt, Options.Retry_Count)
+               then
+                  null;
+               else
+                  Diagnostic := To_Unbounded_String
+                    (PCloud_Error_Diagnostic
+                       ("deletefile", Code, Http_Client.Clients.Response_Text (Result)));
+                  return Remote_Delete_Refused;
                end if;
             end;
          end if;
@@ -3598,7 +3593,6 @@ package body Backup.Remote is
         Nonce (Nonce'First .. Nonce'First + 15);
    end PCloud_Temporary_Name;
 
-
    function PCloud_Progress_Hash
      (Final_Name : String;
       Temp_Name  : String;
@@ -3787,16 +3781,16 @@ package body Backup.Remote is
                      return Publish_PCloud_Temporary_File
                        (Options, File_Id, Folder_Id, Final_Name, Diagnostic);
                   end;
-               elsif PCloud_Retryable_Response (Code, Response_Body) and then
-              Backup.Remote_Syntax.Retry_Available
-                (Attempt, Options.Retry_Count)
-            then
-               null;
-            else
-               Diagnostic := To_Unbounded_String
-                 (PCloud_Error_Diagnostic
-                    ("uploadfile", Code, Http_Client.Clients.Response_Text (Result)));
-               return Remote_Write_Failed;
+               elsif PCloud_Retryable_Response (Code, Response_Body)
+                 and then Backup.Remote_Syntax.Retry_Available
+                            (Attempt, Options.Retry_Count)
+               then
+                  null;
+               else
+                  Diagnostic := To_Unbounded_String
+                    (PCloud_Error_Diagnostic
+                       ("uploadfile", Code, Http_Client.Clients.Response_Text (Result)));
+                  return Remote_Write_Failed;
                end if;
             end;
          end if;
@@ -3979,16 +3973,16 @@ package body Backup.Remote is
                      return Publish_PCloud_Temporary_File
                        (Options, File_Id, Folder_Id, Final_Name, Diagnostic);
                   end;
-               elsif PCloud_Retryable_Response (Code, Response_Body) and then
-              Backup.Remote_Syntax.Retry_Available
-                (Attempt, Options.Retry_Count)
-            then
-               Report.Retried := Report.Retried + 1;
-            else
-               Diagnostic := To_Unbounded_String
-                 (PCloud_Error_Diagnostic
-                    ("uploadfile", Code, Http_Client.Clients.Response_Text (Result)));
-               return Remote_Write_Failed;
+               elsif PCloud_Retryable_Response (Code, Response_Body)
+                 and then Backup.Remote_Syntax.Retry_Available
+                            (Attempt, Options.Retry_Count)
+               then
+                  Report.Retried := Report.Retried + 1;
+               else
+                  Diagnostic := To_Unbounded_String
+                    (PCloud_Error_Diagnostic
+                       ("uploadfile", Code, Http_Client.Clients.Response_Text (Result)));
+                  return Remote_Write_Failed;
                end if;
             end;
          end if;
@@ -5547,7 +5541,6 @@ package body Backup.Remote is
          return False;
    end Parse_S3_Last_Modified;
 
-
    function Read_S3_Object_Metadata_Crc32
      (Location : Remote_Location;
       Options  : Remote_Options;
@@ -5941,7 +5934,6 @@ package body Backup.Remote is
       when others =>
          null;
    end Delete_If_Exists;
-
 
    function SSH_Status
      (Status   : CryptoLib.Errors.Status;
@@ -7197,7 +7189,6 @@ package body Backup.Remote is
 
       return Remote_Ok;
    end Validate_Options;
-
 
    function Validate_Transport_Options
      (Location   : Remote_Location;

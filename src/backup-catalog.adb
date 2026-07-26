@@ -1249,8 +1249,6 @@ package body Backup.Catalog is
       return Catalog_Ok;
    end Query_Catalog;
 
-
-
    function Remove_Indexed_Archive
      (Catalog_Path : String;
       Archive_Path : String;
@@ -1381,7 +1379,6 @@ package body Backup.Catalog is
             Archive_Path);
          return Catalog_Write_Failed;
    end Attach_Run_Metadata;
-
 
    function Record_Verification_Result
      (Catalog_Path : String;

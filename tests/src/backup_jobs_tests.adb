@@ -140,7 +140,6 @@ begin
           "sequence naming skips existing archive path");
    Ada.Directories.Delete_File (Root & "/nightly-000001.zip");
 
-
    declare
       procedure Check_Job_Compression
         (Name     : String;
@@ -177,7 +176,6 @@ begin
       Check_Job_Compression ("lzma", Backup.CLI.Compression_LZMA);
       Check_Job_Compression ("zstd", Backup.CLI.Compression_Zstd);
    end;
-
 
    declare
       Catalog_Job_Path : constant String := Root & "/catalog-job.conf";
@@ -499,7 +497,6 @@ begin
           and then Policy.Weekly = 4
           and then Policy.Monthly = 12,
           "tiered retention buckets");
-
 
    Policy := (Kind => Backup.Jobs.Retention_Tiered,
               Keep_Count => 0,

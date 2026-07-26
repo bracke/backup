@@ -425,19 +425,19 @@ package body Backup.Incremental is
          for Index in Prior.First_Index .. Prior.Last_Index loop
             Prior_Item := Prior.Element (Index);
             if not Prior_Item.Matched then
-            Item :=
-              (Archive_Path      => Prior_Item.Archive_Path,
-               Decision          => Decision_Removed,
-               Kind              => Prior_Item.Kind,
-               Method            => Prior_Item.Method,
-               Crc32             => Prior_Item.Crc32,
-               Compressed_Size   => Prior_Item.Compressed_Size,
-               Uncompressed_Size => Prior_Item.Uncompressed_Size,
-               Link_Target       => Prior_Item.Link_Target,
-               Previous_Index    => Index,
-               Current_Index     => 0);
-               Count_Decision (Result, Decision_Removed);
-               Result.Items.Append (Item);
+               Item :=
+                 (Archive_Path      => Prior_Item.Archive_Path,
+                  Decision          => Decision_Removed,
+                  Kind              => Prior_Item.Kind,
+                  Method            => Prior_Item.Method,
+                  Crc32             => Prior_Item.Crc32,
+                  Compressed_Size   => Prior_Item.Compressed_Size,
+                  Uncompressed_Size => Prior_Item.Uncompressed_Size,
+                  Link_Target       => Prior_Item.Link_Target,
+                  Previous_Index    => Index,
+                  Current_Index     => 0);
+                  Count_Decision (Result, Decision_Removed);
+                  Result.Items.Append (Item);
             end if;
          end loop;
       end if;
@@ -676,7 +676,6 @@ package body Backup.Incremental is
       return Index;
    end Skip_Spaces;
 
-
    function Next_Array_End
      (Text : String;
       Pos  : Natural)
@@ -719,7 +718,6 @@ package body Backup.Incremental is
 
       return 0;
    end Next_Array_End;
-
 
    function Find_Direct_JSON_Key
      (Text : String;
@@ -786,8 +784,6 @@ package body Backup.Incremental is
 
       return 0;
    end Find_Direct_JSON_Key;
-
-
 
    function Count_Direct_JSON_Key
      (Text : String;
@@ -865,7 +861,6 @@ package body Backup.Incremental is
       return Count_Direct_JSON_Key (Text, Name) = 1;
    end Has_Exactly_One_Direct_JSON_Key;
 
-
    function Key_Value_Start
      (Object_Text : String;
       Name        : String)
@@ -886,8 +881,6 @@ package body Backup.Incremental is
       return Skip_Spaces (Object_Text, Pos + 1);
    end Key_Value_Start;
 
-
-
    function Is_JSON_Value_Delimiter
      (Text : String;
       Pos  : Natural)
@@ -899,7 +892,6 @@ package body Backup.Incremental is
         or else Text (Index) = ','
         or else Text (Index) = '}';
    end Is_JSON_Value_Delimiter;
-
 
    function Hex_Value
      (Ch    : Character;
@@ -918,7 +910,6 @@ package body Backup.Incremental is
       end if;
       return True;
    end Hex_Value;
-
 
    function JSON_String_End
      (Text : String;
@@ -1485,7 +1476,6 @@ package body Backup.Incremental is
 
       return Build_From_Prior (Prior, Current, Result, Diagnostic);
    end Build_From_Manifest;
-
 
    function Ignored_To_Plan_Kind
      (Kind : Backup.Scanner.Ignored_Kind)

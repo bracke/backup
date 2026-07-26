@@ -29,7 +29,6 @@ procedure Check_All is
       Quiet   : Boolean := False)
       renames Project_Tools.Release_Checks.Run;
 
-
    procedure Require_File (Relative_Path : String) is
    begin
       Project_Tools.Release_Checks.Require_File (Checks, Relative_Path);
@@ -40,7 +39,6 @@ procedure Check_All is
       Project_Tools.Release_Checks.Require_Directory (Checks, Relative_Path);
    end Require_Directory;
 
-
    procedure Require_Absolute_File (Path : String) is
    begin
       Project_Tools.Release_Checks.Require_Absolute_File (Path);
@@ -50,7 +48,6 @@ procedure Check_All is
    begin
       Project_Tools.Release_Checks.Require_Absolute_Directory (Path);
    end Require_Absolute_Directory;
-
 
    procedure Require_Text (Relative_Path : String; Text : String) is
    begin
@@ -175,7 +172,9 @@ begin
    Require_Text ("README.md", "--retention-policy POLICY");
    Require_Text ("README.md", "REMOTE_TRANSPORT.md");
    Require_Text ("README.md", "CATALOG.md");
-   Require_Text ("CATALOG.md", "Named method ids are stable: store=0, deflate=8, bzip2=12, lzma=14, legacy zstd=20, and zstd=93");
+   Require_Text
+        ("CATALOG.md",
+         "Named method ids are stable: store=0, deflate=8, bzip2=12, lzma=14, legacy zstd=20, and zstd=93");
    Require_Text ("tests/src/backup_catalog_tests.adb", "SPARK catalog accepts documented numeric method ids");
    Require_Text ("README.md", "JOBS_RETENTION.md");
    Require_Text
@@ -195,7 +194,8 @@ begin
    Require_Text ("docs/SPARK.md", "Backup.Jobs_Syntax");
    Require_Text ("docs/SPARK.md", "Backup.Jobs_Retention_Syntax");
    Require_Text ("docs/SPARK.md", "Backup.Remote_Syntax");
-   Require_Text ("docs/SPARK.md", "remote status, transport, sync-action, HTTP status, transport classification, resume-mode, timeout precheck, and retry-decision helpers");
+   Require_Text ("docs/SPARK.md", "remote status, transport, sync-action, HTTP status, transport classification, re"
+                                  & "sume-mode, timeout precheck, and retry-decision helpers");
    Require_Text ("docs/SPARK.md", "Backup.Remote_Sync_Syntax");
    Require_Text ("docs/SPARK.md", "Backup.Manifest_Syntax");
    Require_Text ("docs/SPARK.md", "Backup.CLI_Syntax");
@@ -218,7 +218,9 @@ begin
    Require_Text ("src/backup-manifest_syntax.adb", "with SPARK_Mode => On");
    Require_Text ("src/backup-manifest.adb", "Backup.Manifest_Syntax.Method_Name");
    Require_Text ("docs/SPARK.md", "Backup.Catalog_Syntax");
-   Require_Text ("docs/SPARK.md", "catalog status, verification, encryption, entry-kind, numeric, boolean, and query-value parse helpers");
+   Require_Text
+        ("docs/SPARK.md",
+         "catalog status, verification, encryption, entry-kind, numeric, boolean, and query-value parse helpers");
    Require_Text ("docs/SPARK.md", "Backup.Restore_Syntax");
    Require_Text ("src/backup-path_syntax.ads", "with SPARK_Mode => On");
    Require_Text ("src/backup-path_syntax.adb", "with SPARK_Mode => On");
@@ -315,11 +317,17 @@ begin
    Require_Text ("REMOTE_TRANSPORT.md", "ssh_lib` byte-offset resume");
    Require_Text ("REMOTE_TRANSPORT.md", "`ProxyCommand`");
    Require_Text ("README.md", "`ProxyCommand` configuration");
-   Require_Text ("README.md", "ZIP bzip2, bounded ZIP-LZMA, and Zstandard creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib");
+   Require_Text ("README.md", "ZIP bzip2, bounded ZIP-LZMA, and Zstandard creation and unencrypted verification/ext"
+                              & "raction for classic and ZIP64 metadata are in-process through zlib");
    Require_Text ("README.md", "ZIP PPMd (method 98) is not supported");
-   Require_Text ("README.md", "ZIP method ids are stable: bzip2 uses method 12, LZMA uses method 14, Zstandard uses method 93");
-   Require_Text ("JOBS_RETENTION.md", "BZip2, bounded ZIP-LZMA, and Zstandard ZIP creation are in-process through zlib");
-   Require_Text ("JOBS_RETENTION.md", "unencrypted BZip2, bounded ZIP-LZMA, and Zstandard ZIP verification/extraction, including ZIP64 metadata, are also in-process");
+   Require_Text
+        ("README.md",
+         "ZIP method ids are stable: bzip2 uses method 12, LZMA uses method 14, Zstandard uses method 93");
+   Require_Text
+        ("JOBS_RETENTION.md",
+         "BZip2, bounded ZIP-LZMA, and Zstandard ZIP creation are in-process through zlib");
+   Require_Text ("JOBS_RETENTION.md", "unencrypted BZip2, bounded ZIP-LZMA, and Zstandard ZIP verification/extracti"
+                                      & "on, including ZIP64 metadata, are also in-process");
    Require_Text ("JOBS_RETENTION.md", "ZIP PPMd (method 98) is not supported");
    Require_Text ("JOBS_RETENTION.md", "ZIP method ids are stable: bzip2=12, lzma=14, zstd=93");
    Require_Text ("tests/src/backup_zip_tests.adb", "BZip2 central header uses method 12");
@@ -388,7 +396,10 @@ begin
    Require_Text ("tests/alire.toml", "aunit = ");
    Require_Text ("tests/alire.toml", "project_tools = ");
    Require_Text ("tests/alire.toml", "project_tools = { path = ""../../project_tools"" }");
-   Require_Text ("tests/tests.gpr", "../../project_tools/project_tools.gpr");
+   --  tests/ and tools/ are their own Alire crates: the project_tools dependency
+   --  is declared in their manifests and Alire writes the with into the generated
+   --  config gpr. Assert on the manifest, which is where the truth moved.
+   Require_Text ("tests/alire.toml", "project_tools");
    Require_Text ("tests/src/backup_catalog_tests.adb", "Project_Tools.Files");
    Require_Text ("tests/src/backup_cli_tests.adb", "Project_Tools.Files");
    Require_Text ("tests/src/backup_encryption_tests.adb", "Project_Tools.Files");
@@ -550,7 +561,7 @@ begin
    Require_Text ("src/backup-remote.adb", "Stream_HTTP_Put_With_Retry");
    Require_Text ("tests/src/backup_http_remote_live_tests.adb",
                  "HTTP upload retries a failed streaming PUT");
-   Require_Text ("tools/tools.gpr", "../../project_tools/project_tools.gpr");
+   Require_Text ("tools/alire.toml", "project_tools");
    Require_Text ("tools/src/check_all.adb", "Project_Tools.Release_Checks");
    Require_Text ("tools/src/check_all.adb", "Project_Tools.Tree_Checks.Require_No_Nonempty_Stderr");
    Require_Text ("share/man/man1/backup.1", "Ada command-line backup utility");
@@ -575,7 +586,9 @@ begin
    Require_Text ("tests/src/backup_zip_tests.adb", "Zstd central header uses method 93");
    Require_Text ("tests/src/backup_zip_tests.adb", "LZMA central header uses method 14");
    Require_Text ("tools/cli_surface.conf", "auto store deflate bzip2 lzma zstd");
-   Require_Text ("share/man/man1/backup.1", "bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verification/extraction for classic and ZIP64 metadata are in-process through zlib");
+   Require_Text ("share/man/man1/backup.1", "bzip2, bounded ZIP-LZMA, and zstd ZIP creation and unencrypted verific"
+                                            & "ation/extraction for classic and ZIP64 metadata are in-process through"
+                                            & " zlib");
    Require_Text ("share/man/man1/backup.1", "ZIP PPMd (method 98) is not supported");
    Require_Text ("share/man/man1/backup.1", "ZIP method ids are stable: bzip2=12, lzma=14, zstd=93");
    Require_Text ("tests/src/backup_zip_tests.adb", "central internal attributes mark text payload");
@@ -786,7 +799,9 @@ begin
    Require_Text ("REMOTE_TRANSPORT.md", "protondrive://SHARE_ID/PREFIX/");
    Require_Text ("tests/src/backup_remote_tests.adb", "Proton Drive Ada SDK loads session uid provider");
    Require_Text ("tests/src/backup_remote_tests.adb", "Proton Drive Ada SDK resolves configured user address provider");
-   Require_Text ("tests/src/backup_remote_tests.adb", "Proton Drive Ada SDK upload fails closed without provider endpoints");
+   Require_Text
+        ("tests/src/backup_remote_tests.adb",
+         "Proton Drive Ada SDK upload fails closed without provider endpoints");
    Require_Text ("tests/src/backup_remote_tests.adb", "Proton Drive backend fails closed without provider endpoints");
    Require_Text ("tests/src/backup_remote_tests.adb", "remote config supplies Proton Drive app version");
    Require_Text ("src/backup-remote.ads", "Transport_PCloud");
@@ -844,9 +859,15 @@ begin
    Require_Text ("src/backup-remote.ads", "PCloud_Create_Parents");
    Require_Text ("src/backup-remote.ads", "PCloud_Token_Cache_File");
    Require_Text ("src/backup-remote.ads", "PCloud_Clean_Recursive");
-   Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud temporary cleanup deletes stale upload objects");
-   Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud recursive temporary cleanup walks child folders");
-   Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud preflight checks auth, region, quota, and namespace");
+   Require_Text
+        ("tests/src/backup_http_remote_live_tests.adb",
+         "pCloud temporary cleanup deletes stale upload objects");
+   Require_Text
+        ("tests/src/backup_http_remote_live_tests.adb",
+         "pCloud recursive temporary cleanup walks child folders");
+   Require_Text
+        ("tests/src/backup_http_remote_live_tests.adb",
+         "pCloud preflight checks auth, region, quota, and namespace");
    Require_Text ("tests/src/backup_http_remote_live_tests.adb", "progresshash tracking");
    Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud uploadprogress is polled when enabled");
    Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud path URL creates missing parent folders");
@@ -886,10 +907,14 @@ begin
    Require_Text ("docs/PCLOUD.md", "Troubleshooting");
    Require_Text ("docs/PCLOUD.md", "Provider Capabilities And Limits");
    Require_Text ("docs/PCLOUD.md", "checksumfile");
-   Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud upload, readback verify, and index publish succeed");
+   Require_Text
+        ("tests/src/backup_http_remote_live_tests.adb",
+         "pCloud upload, readback verify, and index publish succeed");
    Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud token-file auth uploads and verifies");
    Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud path URL creates folder path and uploads");
-   Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud upload publishes final objects through renamefile");
+   Require_Text
+        ("tests/src/backup_http_remote_live_tests.adb",
+         "pCloud upload publishes final objects through renamefile");
    Require_Text ("tools/src/check_google_drive_compatibility.adb", "BACKUP_GOOGLE_DRIVE_COMPAT_REMOTE");
    Require_Text ("tools/src/check_google_drive_compatibility.adb", "BACKUP_GOOGLE_DRIVE_COMPAT_STRICT");
    Require_Text ("tools/src/check_google_drive_compatibility.adb", "BACKUP_GOOGLE_DRIVE_COMPAT_ALLOW_FIXTURE");
@@ -915,7 +940,9 @@ begin
    Require_Text ("src/backup-remote.adb", "pCloud remote archive SHA-1 mismatch");
    Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud SHA-1-only checksum metadata verifies upload");
    Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud SHA-1 checksum mismatch is rejected");
-   Require_Text ("tests/src/backup_http_remote_live_tests.adb", "pCloud temporary upload names include collision-resistant nonce");
+   Require_Text
+        ("tests/src/backup_http_remote_live_tests.adb",
+         "pCloud temporary upload names include collision-resistant nonce");
    Require_Text ("src/backup-remote.adb", "account region");
    Require_Text ("src/backup-remote.adb", "PCloud_Error_Diagnostic");
    Require_Text ("src/backup-remote.adb", "PCloud_JSON_File_Object_Field");

@@ -24,7 +24,6 @@ package body Backup.Verify is
    use type CryptoLib.Errors.Status;
    use type Backup.Paths.Validation_Status;
 
-
    type Central_Entry is record
       Name              : Unbounded_String;
       Method            : Unsigned_16 := 0;
@@ -60,7 +59,6 @@ package body Backup.Verify is
    package Range_Vectors is new Ada.Containers.Indefinite_Vectors
      (Index_Type   => Positive,
       Element_Type => Offset_Range);
-
 
    function Status_Text (Status : Verify_Status) return String is
    begin
@@ -139,7 +137,6 @@ package body Backup.Verify is
       Append (Result, '"');
       return To_String (Result);
    end Q;
-
 
    function Metadata_Mode (Item : Verified_Entry) return Unsigned_32 is
    begin
@@ -492,7 +489,6 @@ package body Backup.Verify is
       return False;
    end Contains_Backslash;
 
-
    function Ends_With_Slash (Text : String) return Boolean is
    begin
       return Text'Length > 0
@@ -509,7 +505,6 @@ package body Backup.Verify is
       end if;
       return Text;
    end Directory_Archive_Name;
-
 
    procedure Parse_Metadata_Extra
      (Data       : Stream_Element_Array;
@@ -718,7 +713,6 @@ package body Backup.Verify is
       end;
    end Zlib_To_Bytes;
 
-
    function Zipcrypto_CRC32_Update
      (Crc : Unsigned_32;
       B   : Stream_Element)
@@ -878,8 +872,6 @@ package body Backup.Verify is
          Content := Null_Unbounded_String;
          return False;
    end Validate_Deflate_Payload;
-
-
 
    type AES_Extra_Info is record
       Present       : Boolean := False;
@@ -1138,7 +1130,7 @@ package body Backup.Verify is
                   end if;
                   return Disk_Starts.Element (Natural (Disk));
                end Disk_Start_Offset;
-            begin
+         begin
                if Eocd = 0 or else Eocd + 21 > Data'Last then
                   Diagnostic := To_Unbounded_String ("missing or truncated ZIP EOCD");
                   Report.Status := Verify_Malformed_Zip;
@@ -1313,8 +1305,13 @@ package body Backup.Verify is
                         Name_First : constant Stream_Element_Offset := Pos + 46;
                         Name_Last : constant Stream_Element_Offset := Name_First + Stream_Element_Offset (Name_Len) - 1;
                         Extra_First : constant Stream_Element_Offset := Name_Last + 1;
-                        Extra_Last : constant Stream_Element_Offset := Extra_First + Stream_Element_Offset (Extra_Len) - 1;
-                        Record_Last : constant Stream_Element_Offset := Pos + 45 + Stream_Element_Offset (Name_Len) + Stream_Element_Offset (Extra_Len) + Stream_Element_Offset (Comment_Len);
+                        Extra_Last : constant Stream_Element_Offset :=
+                          Extra_First + Stream_Element_Offset (Extra_Len) - 1;
+                        Record_Last : constant Stream_Element_Offset := Pos
+                           + 45
+                           + Stream_Element_Offset (Name_Len)
+                           + Stream_Element_Offset (Extra_Len)
+                           + Stream_Element_Offset (Comment_Len);
                         Comp : Unsigned_64 := Unsigned_64 (Comp_32);
                         Uncomp : Unsigned_64 := Unsigned_64 (Uncomp_32);
                         Local_Off : Unsigned_64 := Disk_Start_Offset (Disk_Start) + Unsigned_64 (Offset_32);
@@ -1340,12 +1337,14 @@ package body Backup.Verify is
                         if (not Is_Split and then Disk_Start /= 0)
                           or else Disk_Start_Offset (Disk_Start) = 0
                         then
-                           Diagnostic := To_Unbounded_String ("central entry disk start does not match available ZIP parts");
+                           Diagnostic := To_Unbounded_String ("central entry disk start does not match available ZI"
+                                                              & "P parts");
                            Report.Status := Verify_Unsupported_Feature;
                            return Verify_Unsupported_Feature;
                         end if;
                         if not Supported_General_Flags (Flags, Method) then
-                           Diagnostic := To_Unbounded_String ("unsupported ZIP general-purpose flags for central entry");
+                           Diagnostic := To_Unbounded_String ("unsupported ZIP general-purpose flags for central en"
+                                                              & "try");
                            Report.Status := Verify_Unsupported_Feature;
                            return Verify_Unsupported_Feature;
                         end if;
@@ -1356,7 +1355,10 @@ package body Backup.Verify is
                            Report.Status := Verify_Unsupported_Feature;
                            return Verify_Unsupported_Feature;
                         end if;
-                        if Comp_32 = 16#FFFF_FFFF# or else Uncomp_32 = 16#FFFF_FFFF# or else Offset_32 = 16#FFFF_FFFF# then
+                        if Comp_32 = 16#FFFF_FFFF#
+                          or else Uncomp_32 = 16#FFFF_FFFF#
+                          or else Offset_32 = 16#FFFF_FFFF#
+                        then
                            Parse_Zip64_Size_Extra
                              (Data, Extra_First, Extra_Last,
                               Uncomp_32 = 16#FFFF_FFFF#,
@@ -1409,7 +1411,8 @@ package body Backup.Verify is
                                  return Verify_Invalid_Archive_Path;
                               end if;
                               if Is_Dir and then (Method /= 0 or else Comp /= 0 or else Uncomp /= 0) then
-                                 Diagnostic := To_Unbounded_String ("directory entry must be stored and empty: " & Name);
+                                 Diagnostic :=
+                                   To_Unbounded_String ("directory entry must be stored and empty: " & Name);
                                  Report.Status := Verify_Metadata_Mismatch;
                                  return Verify_Metadata_Mismatch;
                               end if;
@@ -1490,7 +1493,8 @@ package body Backup.Verify is
                      return Verify_Metadata_Mismatch;
                   end if;
                   if not Fits (Data, Central_Item.Local_Offset, 30) then
-                     Diagnostic := To_Unbounded_String ("local header offset is invalid for " & To_String (Central_Item.Name));
+                     Diagnostic :=
+                       To_Unbounded_String ("local header offset is invalid for " & To_String (Central_Item.Name));
                      Report.Status := Verify_Invalid_Offset;
                      return Verify_Invalid_Offset;
                   end if;
@@ -1506,7 +1510,8 @@ package body Backup.Verify is
                      Extra_Len : Unsigned_16;
                   begin
                      if U32_At (Data, Lpos) /= 16#0403_4B50# then
-                        Diagnostic := To_Unbounded_String ("local header signature is invalid for " & To_String (Central_Item.Name));
+                        Diagnostic := To_Unbounded_String ("local header signature is invalid for "
+                           & To_String (Central_Item.Name));
                         Report.Status := Verify_Invalid_Offset;
                         return Verify_Invalid_Offset;
                      end if;
@@ -1522,7 +1527,8 @@ package body Backup.Verify is
                         Name_First : constant Stream_Element_Offset := Lpos + 30;
                         Name_Last : constant Stream_Element_Offset := Name_First + Stream_Element_Offset (Name_Len) - 1;
                         Extra_First : constant Stream_Element_Offset := Name_Last + 1;
-                        Extra_Last : constant Stream_Element_Offset := Extra_First + Stream_Element_Offset (Extra_Len) - 1;
+                        Extra_Last : constant Stream_Element_Offset :=
+                          Extra_First + Stream_Element_Offset (Extra_Len) - 1;
                         Payload_First : constant Stream_Element_Offset := Extra_Last + 1;
                         Payload_Last : Stream_Element_Offset := Payload_First - 1;
                         Entry_Last    : Stream_Element_Offset := Payload_First - 1;
@@ -1537,22 +1543,28 @@ package body Backup.Verify is
                         Entry_Content : Unbounded_String;
                      begin
                         if Name_Len = 0 then
-                           Diagnostic := To_Unbounded_String ("local header name is empty for " & To_String (Central_Item.Name));
+                           Diagnostic :=
+                             To_Unbounded_String ("local header name is empty for " & To_String (Central_Item.Name));
                            Report.Status := Verify_Metadata_Mismatch;
                            return Verify_Metadata_Mismatch;
                         end if;
                         if not Supported_Zip_Version (Version_Needed) then
-                           Diagnostic := To_Unbounded_String ("unsupported ZIP version-needed field for local entry " & To_String (Central_Item.Name));
+                           Diagnostic := To_Unbounded_String ("unsupported ZIP version-needed field for local entry "
+                              & To_String (Central_Item.Name));
                            Report.Status := Verify_Unsupported_Feature;
                            return Verify_Unsupported_Feature;
                         end if;
                         if Flags /= Central_Item.General_Flags then
-                           Diagnostic := To_Unbounded_String ("local and central flags differ for " & To_String (Central_Item.Name));
+                           Diagnostic := To_Unbounded_String ("local and central flags differ for "
+                              & To_String (Central_Item.Name));
                            Report.Status := Verify_Metadata_Mismatch;
                            return Verify_Metadata_Mismatch;
                         end if;
-                        if not Fits (Data, Unsigned_64 (Name_First), Unsigned_64 (Name_Len) + Unsigned_64 (Extra_Len)) then
-                           Diagnostic := To_Unbounded_String ("local header name or extra field is truncated for " & To_String (Central_Item.Name));
+                        if not Fits (Data, Unsigned_64 (Name_First), Unsigned_64 (Name_Len)
+                           + Unsigned_64 (Extra_Len))
+                        then
+                           Diagnostic := To_Unbounded_String ("local header name or extra field is truncated for "
+                              & To_String (Central_Item.Name));
                            Report.Status := Verify_Malformed_Zip;
                            return Verify_Malformed_Zip;
                         end if;
@@ -1563,17 +1575,20 @@ package body Backup.Verify is
                              or else Local_AES_Info.Strength /= Central_Item.AES_Strength
                              or else Local_AES_Info.Actual_Method /= Central_Item.Actual_Method
                            then
-                              Diagnostic := To_Unbounded_String ("local AES ZIP extra field differs for " & To_String (Central_Item.Name));
+                              Diagnostic := To_Unbounded_String ("local AES ZIP extra field differs for "
+                                 & To_String (Central_Item.Name));
                               Report.Status := Verify_Metadata_Mismatch;
                               return Verify_Metadata_Mismatch;
                            end if;
                         elsif Local_AES_Info.Present then
-                           Diagnostic := To_Unbounded_String ("unexpected local AES ZIP extra field for " & To_String (Central_Item.Name));
+                           Diagnostic := To_Unbounded_String ("unexpected local AES ZIP extra field for "
+                              & To_String (Central_Item.Name));
                            Report.Status := Verify_Metadata_Mismatch;
                            return Verify_Metadata_Mismatch;
                         end if;
                         if Payload_First > Pos_Of (Central_Offset) then
-                           Diagnostic := To_Unbounded_String ("local header overlaps central directory for " & To_String (Central_Item.Name));
+                           Diagnostic := To_Unbounded_String ("local header overlaps central directory for "
+                              & To_String (Central_Item.Name));
                            Report.Status := Verify_Truncated_Payload;
                            return Verify_Truncated_Payload;
                         end if;
@@ -1588,7 +1603,8 @@ package body Backup.Verify is
                              or else Method /= Central_Item.Method
                              or else ((Flags and 8) = 0 and then Crc /= Central_Item.Crc32)
                            then
-                              Diagnostic := To_Unbounded_String ("local and central metadata differ for " & To_String (Central_Item.Name));
+                              Diagnostic := To_Unbounded_String ("local and central metadata differ for "
+                                 & To_String (Central_Item.Name));
                               Report.Status := Verify_Metadata_Mismatch;
                               return Verify_Metadata_Mismatch;
                            end if;
@@ -1600,7 +1616,8 @@ package body Backup.Verify is
                               Comp_32 = 16#FFFF_FFFF#,
                               False, Uncomp, Comp, Dummy_Offset, Found, Valid);
                            if not Valid or else not Found or else Version_Needed /= 45 then
-                              Diagnostic := To_Unbounded_String ("local ZIP64 extra field is invalid for " & To_String (Central_Item.Name));
+                              Diagnostic := To_Unbounded_String ("local ZIP64 extra field is invalid for "
+                                 & To_String (Central_Item.Name));
                               Report.Status := Verify_Invalid_Zip64;
                               return Verify_Invalid_Zip64;
                            end if;
@@ -1609,12 +1626,14 @@ package body Backup.Verify is
                           and then (Comp /= Central_Item.Compressed_Size
                             or else Uncomp /= Central_Item.Uncompressed_Size)
                         then
-                           Diagnostic := To_Unbounded_String ("local and central sizes differ for " & To_String (Central_Item.Name));
+                           Diagnostic := To_Unbounded_String ("local and central sizes differ for "
+                              & To_String (Central_Item.Name));
                            Report.Status := Verify_Metadata_Mismatch;
                            return Verify_Metadata_Mismatch;
                         end if;
                         if not Fits (Data, Unsigned_64 (Payload_First), Central_Item.Compressed_Size) then
-                           Diagnostic := To_Unbounded_String ("payload is truncated for " & To_String (Central_Item.Name));
+                           Diagnostic :=
+                             To_Unbounded_String ("payload is truncated for " & To_String (Central_Item.Name));
                            Report.Status := Verify_Truncated_Payload;
                            return Verify_Truncated_Payload;
                         end if;
@@ -1622,7 +1641,8 @@ package body Backup.Verify is
                            Payload_Last :=
                              Payload_First + Stream_Element_Offset (Central_Item.Compressed_Size) - 1;
                            if Payload_Last >= Pos_Of (Central_Offset) then
-                              Diagnostic := To_Unbounded_String ("payload overlaps central directory for " & To_String (Central_Item.Name));
+                              Diagnostic := To_Unbounded_String ("payload overlaps central directory for "
+                                 & To_String (Central_Item.Name));
                               Report.Status := Verify_Truncated_Payload;
                               return Verify_Truncated_Payload;
                            end if;
@@ -1648,7 +1668,8 @@ package body Backup.Verify is
                                    Unsigned_64 (Descriptor_Last - Value_First + 1))
                                 or else U32_At (Data, Value_First) /= Central_Item.Crc32
                               then
-                                 Diagnostic := To_Unbounded_String ("data descriptor is invalid for " & To_String (Central_Item.Name));
+                                 Diagnostic := To_Unbounded_String ("data descriptor is invalid for "
+                                    & To_String (Central_Item.Name));
                                  Report.Status := Verify_Metadata_Mismatch;
                                  return Verify_Metadata_Mismatch;
                               end if;
@@ -1662,7 +1683,8 @@ package body Backup.Verify is
                               if Desc_Comp /= Central_Item.Compressed_Size
                                 or else Desc_Uncomp /= Central_Item.Uncompressed_Size
                               then
-                                 Diagnostic := To_Unbounded_String ("data descriptor sizes differ for " & To_String (Central_Item.Name));
+                                 Diagnostic := To_Unbounded_String ("data descriptor sizes differ for "
+                                    & To_String (Central_Item.Name));
                                  Report.Status := Verify_Metadata_Mismatch;
                                  return Verify_Metadata_Mismatch;
                               end if;
@@ -1703,7 +1725,8 @@ package body Backup.Verify is
                                 (if Plain_Last < Plain_First then 0
                                  else Unsigned_64 (Plain_Last - Plain_First + 1));
                               if Computed_Size /= Central_Item.Uncompressed_Size then
-                                 Diagnostic := To_Unbounded_String ("stored sizes differ for " & To_String (Central_Item.Name));
+                                 Diagnostic :=
+                                   To_Unbounded_String ("stored sizes differ for " & To_String (Central_Item.Name));
                                  Report.Status := Verify_Metadata_Mismatch;
                                  return;
                               end if;
@@ -1724,7 +1747,9 @@ package body Backup.Verify is
                                    or else Computed_Size <= 1_000_000
                                  then
                                     if not Can_Stringify (Computed_Size) then
-                                       Diagnostic := To_Unbounded_String ("entry content is too large to validate as text: " & To_String (Central_Item.Name));
+                                       Diagnostic := To_Unbounded_String
+                                         ("entry content is too large to validate as text: "
+                                          & To_String (Central_Item.Name));
                                        Report.Status := Verify_Manifest_Mismatch;
                                        return;
                                     end if;
@@ -1775,7 +1800,8 @@ package body Backup.Verify is
                                  if Central_Item.Compressed_Size <
                                    Unsigned_64 (Salt_Length + 2 + 10)
                                  then
-                                    Diagnostic := To_Unbounded_String ("AES ZIP payload is too short for " & To_String (Central_Item.Name));
+                                    Diagnostic := To_Unbounded_String ("AES ZIP payload is too short for "
+                                       & To_String (Central_Item.Name));
                                     Report.Status := Verify_Metadata_Mismatch;
                                     return Verify_Metadata_Mismatch;
                                  end if;
@@ -1784,7 +1810,8 @@ package body Backup.Verify is
                                     Central_Item.AES_Strength, Zip_Password,
                                     Plain, Valid_AES);
                                  if not Valid_AES then
-                                    Diagnostic := To_Unbounded_String ("AES ZIP entry authentication failed for " & To_String (Central_Item.Name));
+                                    Diagnostic := To_Unbounded_String ("AES ZIP entry authentication failed for "
+                                       & To_String (Central_Item.Name));
                                     Report.Status := Verify_Crc_Mismatch;
                                     return Verify_Crc_Mismatch;
                                  end if;
@@ -1801,7 +1828,8 @@ package body Backup.Verify is
                                        Central_Item.Uncompressed_Size,
                                        Computed_Crc, Computed_Size, Entry_Content)
                                     then
-                                       Diagnostic := To_Unbounded_String ("deflate validation failed for " & To_String (Central_Item.Name));
+                                       Diagnostic := To_Unbounded_String ("deflate validation failed for "
+                                          & To_String (Central_Item.Name));
                                        Report.Status := Verify_Deflate_Invalid;
                                        return Verify_Deflate_Invalid;
                                     end if;
@@ -1809,7 +1837,8 @@ package body Backup.Verify is
                               end;
                            elsif Encrypted then
                               if Central_Item.Compressed_Size < 12 then
-                                 Diagnostic := To_Unbounded_String ("encrypted ZIP payload is too short for " & To_String (Central_Item.Name));
+                                 Diagnostic := To_Unbounded_String ("encrypted ZIP payload is too short for "
+                                    & To_String (Central_Item.Name));
                                  Report.Status := Verify_Metadata_Mismatch;
                                  return Verify_Metadata_Mismatch;
                               end if;
@@ -1819,7 +1848,8 @@ package body Backup.Verify is
                                    (Central_Item.Crc32, Central_Item.Dos_Time,
                                     Central_Item.General_Flags))
                               then
-                                 Diagnostic := To_Unbounded_String ("encrypted ZIP entry password check failed for " & To_String (Central_Item.Name));
+                                 Diagnostic := To_Unbounded_String ("encrypted ZIP entry password check failed for "
+                                    & To_String (Central_Item.Name));
                                  Report.Status := Verify_Crc_Mismatch;
                                  return Verify_Crc_Mismatch;
                               end if;
@@ -1841,7 +1871,8 @@ package body Backup.Verify is
                                        Central_Item.Uncompressed_Size,
                                        Computed_Crc, Computed_Size, Entry_Content)
                                     then
-                                       Diagnostic := To_Unbounded_String ("deflate validation failed for " & To_String (Central_Item.Name));
+                                       Diagnostic := To_Unbounded_String ("deflate validation failed for "
+                                          & To_String (Central_Item.Name));
                                        Report.Status := Verify_Deflate_Invalid;
                                        return Verify_Deflate_Invalid;
                                     end if;
@@ -1860,7 +1891,8 @@ package body Backup.Verify is
                                  Central_Item.Uncompressed_Size,
                                  Computed_Crc, Computed_Size, Entry_Content)
                               then
-                                 Diagnostic := To_Unbounded_String ("deflate validation failed for " & To_String (Central_Item.Name));
+                                 Diagnostic := To_Unbounded_String ("deflate validation failed for "
+                                    & To_String (Central_Item.Name));
                                  Report.Status := Verify_Deflate_Invalid;
                                  return Verify_Deflate_Invalid;
                               end if;
@@ -1915,8 +1947,8 @@ package body Backup.Verify is
                      end;
                   end;
                end loop;
-            end;
          end;
+      end;
 
       if Report.Has_Manifest then
          declare

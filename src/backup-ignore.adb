@@ -2,7 +2,6 @@ with Ada.Containers;
 with Ada.Directories;
 with Ada.Text_IO;
 
-
 package body Backup.Ignore is
    use Ada.Strings.Unbounded;
 
@@ -311,7 +310,6 @@ package body Backup.Ignore is
 
       return True;
    end Bracket_Globs_Are_Valid;
-
 
    package String_Vectors is new Ada.Containers.Indefinite_Vectors
      (Index_Type   => Positive,
@@ -940,9 +938,6 @@ package body Backup.Ignore is
             Diagnostics);
          return Parse_With_Diagnostics;
    end Parse_File;
-
-
-
 
    function Evaluate
      (Rules        : Rule_Vectors.Vector;

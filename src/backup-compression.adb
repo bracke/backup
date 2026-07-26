@@ -1,6 +1,5 @@
 with Ada.Characters.Handling;
 
-
 package body Backup.Compression is
    use type Backup.CLI.Compression_Mode;
    use type Backup.Scanner.Entry_Kind;

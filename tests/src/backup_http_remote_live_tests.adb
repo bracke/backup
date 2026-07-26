@@ -303,7 +303,6 @@ procedure Backup_HTTP_Remote_Live_Tests is
       return Headers (First .. Last - 1);
    end Header_Value;
 
-
    function Extract_Drive_Multipart_Content (Payload : String) return String is
       Zip_Marker  : constant String := "Content-Type: application/zip" & CRLF & CRLF;
       Text_Marker : constant String := "Content-Type: text/plain" & CRLF & CRLF;
@@ -370,7 +369,6 @@ procedure Backup_HTTP_Remote_Live_Tests is
          "Content-Type: application/octet-stream" & CRLF &
          Extra_Headers & CRLF & Payload);
    end Send_Response;
-
 
    package C renames Interfaces.C;
    package CS renames Interfaces.C.Strings;
@@ -1566,7 +1564,6 @@ procedure Backup_HTTP_Remote_Live_Tests is
          null;
    end Shutdown;
 
-
    procedure Seed_PCloud_Temp (Port : Natural) is
       Socket : GNAT.Sockets.Socket_Type;
       Addr   : GNAT.Sockets.Sock_Addr_Type (GNAT.Sockets.Family_Inet);
@@ -1586,7 +1583,6 @@ procedure Backup_HTTP_Remote_Live_Tests is
          null;
    end Seed_PCloud_Temp;
 
-
    procedure Seed_PCloud_Recursive_Temp (Port : Natural) is
       Socket : GNAT.Sockets.Socket_Type;
       Addr   : GNAT.Sockets.Sock_Addr_Type (GNAT.Sockets.Family_Inet);
@@ -1605,7 +1601,6 @@ procedure Backup_HTTP_Remote_Live_Tests is
       when others =>
          null;
    end Seed_PCloud_Recursive_Temp;
-
 
    procedure Drop_S3_Index (Port : Natural) is
       Socket : GNAT.Sockets.Socket_Type;

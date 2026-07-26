@@ -90,7 +90,6 @@ package body Backup.Zip is
       return Flags;
    end General_Purpose_Flags;
 
-
    procedure Dos_Time_And_Date
      (Path     : Backup.Paths.File_System_Path;
       Kind     : Source_Kind;
@@ -337,7 +336,6 @@ package body Backup.Zip is
          end if;
          return Write_Unreadable_Source;
    end Analyze_Source;
-
 
    function Analyze_Content
      (Content : Unbounded_String;
@@ -685,7 +683,6 @@ package body Backup.Zip is
          Write_U64 (Output, Item.Local_Header_Offset);
       end if;
    end Write_Central_Zip64_Extra;
-
 
    procedure Append_U16
      (Text  : in out Unbounded_String;

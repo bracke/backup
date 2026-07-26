@@ -199,7 +199,6 @@ procedure Backup_Workflow_Tests is
       return Count;
    end Count_Local_Headers;
 
-
    function Matches_Text
      (Data : Stream_Element_Array;
       Pos  : Stream_Element_Offset;
@@ -230,7 +229,6 @@ procedure Backup_Workflow_Tests is
    begin
       return Image (Image'First + 1 .. Image'Last);
    end Decimal_32;
-
 
    function Manifest_Matches_Deflated_Central_Sizes
      (Data : Stream_Element_Array)
@@ -780,8 +778,6 @@ begin
              "encrypted list-json does not leak password contents");
    end;
 
-
-
    declare
       Output    : constant String := Root & "/encrypted-wrong-password.benc";
       Pass_File : constant String := Root & "/wrong-password-good.txt";
@@ -915,8 +911,6 @@ begin
         (not Ada.Directories.Exists (Output),
          "failed encrypted incremental planning does not write successor archive");
    end;
-
-
 
    declare
       Output    : constant String := Root & "/encrypted-dry-run-json.benc";
@@ -1058,7 +1052,6 @@ begin
         (not Ada.Directories.Exists (Output),
          "failed encrypted incremental wrong-password planning does not write successor archive");
    end;
-
 
    declare
       Output    : constant String := Root & "/encrypted-verify-json-temp.benc";
@@ -1278,7 +1271,6 @@ begin
          "encrypted incremental env planning writes successor archive");
       Ada.Environment_Variables.Clear (Env_Name);
    end;
-
 
    declare
       Output       : constant String := Root & "/encrypted-create-missing-password-file.benc";

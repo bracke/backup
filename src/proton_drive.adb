@@ -61,7 +61,11 @@ package body Proton_Drive is
 
    function SDK_Status_Text return String is
    begin
-      return "Proton Drive Ada SDK validates configuration, loads session and user-address providers, derives metadata authentication material with CryptoLib.Hashes and CryptoLib.Macs, and executes explicit provider or opt-in native Drive operation endpoints, validates descriptor schema/capabilities and explicit wire contracts, tags content blocks before upload, and fails closed when bounded-memory upload is not available";
+      return "Proton Drive Ada SDK validates configuration, loads session and user-address providers, derives metad"
+             & "ata authentication material with CryptoLib.Hashes and CryptoLib.Macs, and executes explicit provider "
+             & "or opt-in native Drive operation endpoints, validates descriptor schema/capabilities and explicit wir"
+             & "e contracts, tags content blocks before upload, and fails closed when bounded-memory upload is not av"
+             & "ailable";
    end SDK_Status_Text;
 
    function Is_Lower_Name_Char (Ch : Character) return Boolean is
@@ -159,7 +163,6 @@ package body Proton_Drive is
       when others =>
          return False;
    end Is_App_Version_Valid;
-
 
    function Is_Official_API_Base (Value : String) return Boolean is
    begin
@@ -400,7 +403,8 @@ package body Proton_Drive is
 
    function First_Party_Key_Unlock_Status return String is
    begin
-      return "Proton Drive first-party account key unlock is unavailable: the supported SDK does not include authentication/login, session management, or a user address provider";
+      return "Proton Drive first-party account key unlock is unavailable: the supported SDK does not include authen"
+             & "tication/login, session management, or a user address provider";
    end First_Party_Key_Unlock_Status;
 
    function Parse_Rounds (Text : String) return Interfaces.Unsigned_32 is
@@ -1189,7 +1193,8 @@ package body Proton_Drive is
 
       if Path'Length = 0 then
          Diagnostic := To_Unbounded_String
-           ("Proton Drive session provider is required; upstream SDK does not include authentication or session management");
+           ("Proton Drive session provider is required; upstream SDK does not include authentication or session man"
+            & "agement");
          return SDK_Provider_Missing;
       elsif Text'Length = 0 then
          Diagnostic := To_Unbounded_String
@@ -1918,7 +1923,8 @@ package body Proton_Drive is
       Updated := Session;
       if URL'Length = 0 or else Length (Session.Refresh_Token) = 0 then
          Diagnostic := To_Unbounded_String
-           ("Proton Drive refresh requires explicit proton_drive_refresh_url or provider operation base plus refresh_token");
+           ("Proton Drive refresh requires explicit proton_drive_refresh_url or provider operation base plus refres"
+            & "h_token");
          return SDK_Provider_Missing;
       end if;
       Status := Execute_HTTP
@@ -1967,7 +1973,9 @@ package body Proton_Drive is
       Session := (others => Null_Unbounded_String);
       if URL'Length = 0 then
          Diagnostic := To_Unbounded_String
-           ("Proton Drive first-party auth is not implemented by the supported SDK; configure explicit proton_drive_" & Operation & "_url or provider operation base");
+           ("Proton Drive first-party auth is not implemented by the supported SDK; configure explicit proton_drive_"
+              & Operation
+              & "_url or provider operation base");
          return SDK_Provider_Missing;
       end if;
       Status := Execute_HTTP
@@ -2120,7 +2128,8 @@ package body Proton_Drive is
          return SDK_Ok;
       end if;
       Diagnostic := To_Unbounded_String
-        ("Proton Drive provider operation endpoints are missing; configure proton_drive_operation_base_url or per-operation endpoint templates");
+        ("Proton Drive provider operation endpoints are missing; configure proton_drive_operation_base_url or per-o"
+         & "peration endpoint templates");
       return SDK_Operations_Unavailable;
    end Validate_Config;
 
@@ -2220,11 +2229,13 @@ package body Proton_Drive is
    begin
       if Item.State = SDK_Crypto_Unavailable then
          Diagnostic := To_Unbounded_String
-           ("Proton Drive " & Operation & " requires SDK-compatible encryption and metadata support before Drive data can be modified or read");
+           ("Proton Drive " & Operation & " requires SDK-compatible encryption and metadata support before Drive da"
+                                          & "ta can be modified or read");
          return SDK_Crypto_Unavailable;
       elsif Item.State = SDK_Operations_Unavailable then
          Diagnostic := To_Unbounded_String
-           ("Proton Drive " & Operation & " has CryptoLib-backed crypto metadata available, but no provider operation endpoint is configured");
+           ("Proton Drive " & Operation & " has CryptoLib-backed crypto metadata available, but no provider operati"
+                                          & "on endpoint is configured");
          return SDK_Operations_Unavailable;
       else
          Diagnostic := Item.Detail;
@@ -2685,7 +2696,7 @@ package body Proton_Drive is
       Name_Text : Unbounded_String;
       Size_Text : Unbounded_String;
       Parsed_Size : Interfaces.Unsigned_64 := 0;
-      begin
+   begin
       Nodes.Clear;
       if Item.State /= SDK_Ok then
          return Operation_Unavailable (Item, "list", Diagnostic);
@@ -2714,7 +2725,9 @@ package body Proton_Drive is
          Nodes.Append
            (Node_Metadata'(Node_Id => Id_Text,
              Name    => Name_Text,
-             Kind    => (if Project_Tools.JSON.Field_Value (To_String (Response_Text), "kind") = "folder" then Node_Folder else Node_File),
+             Kind    =>
+               (if Project_Tools.JSON.Field_Value (To_String (Response_Text), "kind") = "folder"
+                then Node_Folder else Node_File),
              Size    => Parsed_Size));
       end if;
       declare

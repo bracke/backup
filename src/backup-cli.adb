@@ -60,7 +60,6 @@ package body Backup.CLI is
       return Backup.Messages.Text (Key, Arg_Key, Arg_Value);
    end Localized;
 
-
    function To_Terminal_Role
      (Role : Backup.CLI_Surface.Help_Role) return Terminal_Styles.Style_Role
    is
@@ -504,7 +503,6 @@ package body Backup.CLI is
 
       return True;
    end Parse_Symlinks;
-
 
    function Environment_Config_Value
      (Name       : String;
@@ -1341,7 +1339,8 @@ package body Backup.CLI is
            or else Length (Config.Incremental_From_Manifest) > 0
          then
             Diagnostic := To_Unbounded_String
-              ("--pcloud-clean-temp cannot be combined with archive creation, verification, extraction, or incremental options");
+              ("--pcloud-clean-temp cannot be combined with archive creation, verification, extraction, or incremen"
+               & "tal options");
             return False;
          end if;
          return True;
@@ -1368,7 +1367,8 @@ package body Backup.CLI is
            or else Length (Config.Incremental_From_Manifest) > 0
          then
             Diagnostic := To_Unbounded_String
-              ("--restore-remote cannot be combined with archive creation, verification, extraction, or incremental options");
+              ("--restore-remote cannot be combined with archive creation, verification, extraction, or incremental"
+               & " options");
             return False;
          end if;
 
@@ -2521,7 +2521,8 @@ package body Backup.CLI is
                return Success;
             elsif Arg = "--proton-drive-login" then
                Emit_Error
-                 ("--proton-drive-login requires SESSION_FILE USER_ADDRESS USERNAME PASSWORD_PROOF [MFA_CODE] [SESSION_LABEL] [APP_VERSION] [API_BASE]",
+                 ("--proton-drive-login requires SESSION_FILE USER_ADDRESS USERNAME PASSWORD_PROOF [MFA_CODE] [SESS"
+                  & "ION_LABEL] [APP_VERSION] [API_BASE]",
                   Wants_JSON_Errors (Arguments));
                return Failure;
             end if;
@@ -2582,7 +2583,8 @@ package body Backup.CLI is
         and then Ada.Command_Line.Argument (1) = "--proton-drive-login"
       then
          Emit_Error
-           ("--proton-drive-login requires SESSION_FILE USER_ADDRESS USERNAME PASSWORD_PROOF [MFA_CODE] [SESSION_LABEL] [APP_VERSION] [API_BASE]",
+           ("--proton-drive-login requires SESSION_FILE USER_ADDRESS USERNAME PASSWORD_PROOF [MFA_CODE] [SESSION_LA"
+            & "BEL] [APP_VERSION] [API_BASE]",
             Wants_JSON_Errors (Arguments));
          return Failure;
       end if;
@@ -2729,8 +2731,6 @@ package body Backup.CLI is
             return Success;
          end;
       end if;
-
-
 
       if Config.Check_PCloud_Remote then
          declare

@@ -18,7 +18,6 @@ with Backup_Workflow_Tests;
 with Backup_Zip_Tests;
 
 package body Backup_Suite is
-   pragma Warnings (Off, "use of an anonymous access type allocator");
 
    type Test_Case is new AUnit.Test_Cases.Test_Case with null record;
 
@@ -172,7 +171,7 @@ package body Backup_Suite is
       Result : constant AUnit.Test_Suites.Access_Test_Suite :=
         new AUnit.Test_Suites.Test_Suite;
    begin
-      Result.Add_Test (new Test_Case);
+      Result.Add_Test (AUnit.Test_Cases.Test_Case_Access'(new Test_Case));
       return Result;
    end Suite;
 end Backup_Suite;

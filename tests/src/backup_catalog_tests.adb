@@ -394,7 +394,6 @@ begin
         and then Result.Archives.Length = 1,
           "catalog queries remote-location metadata");
 
-
    Status := Backup.Catalog.Parse_Query ("remote-verified:true",
                                          Query, Diagnostic);
    Check (Status = Backup.Catalog.Catalog_Ok,

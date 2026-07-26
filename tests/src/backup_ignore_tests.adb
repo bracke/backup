@@ -54,7 +54,6 @@ procedure Backup_Ignore_Tests is
       return To_String (Rules.Element (Index).Original_Text);
    end Original_At;
 
-
    function Diagnostic_Message_At
      (Index : Positive)
       return String
@@ -214,8 +213,6 @@ begin
      (Diags.Element (1).Kind = Backup.Ignore.Invalid_Double_Star,
       "double-star diagnostic kind");
 
-
-
    Reset;
    Status := Backup.Ignore.Parse_Line
      ("root.gitignore", 17, "./local", Rules, Diags);
@@ -298,7 +295,6 @@ begin
      (To_String (Diags.Element (1).Ignore_File_Path) =
       "definitely_missing_ignore_file.gitignore",
       "missing parse file diagnostic source path");
-
 
    Reset;
    Status := Backup.Ignore.Parse_Text
@@ -544,7 +540,6 @@ begin
         (Bad_Base.Status = Backup.Ignore.Match_Invalid_Base_Path,
          "invalid base path rejected");
    end;
-
 
    Reset;
    Status := Backup.Ignore.Parse_Text

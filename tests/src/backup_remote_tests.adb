@@ -1048,7 +1048,6 @@ begin
    Check (GNAT.OS_Lib.Is_Readable_File (Rem_Dir & "/local.zip"),
           "file remote uploaded object exists");
 
-
    Status := Backup.Remote.Upload_Archive
      (Rem_URL, Local,
       (Require_Encrypted => True,
@@ -1070,7 +1069,6 @@ begin
       Report, Diagnostic);
    Check (Status = Backup.Remote.Remote_Timeout,
           "remote upload honors explicit timeout policy");
-
 
    Write_File (Rem_Dir & "/local.zip.partial", "archive" & ASCII.LF);
    Status := Backup.Remote.Upload_Archive
@@ -1153,7 +1151,6 @@ begin
       end loop;
       Check (Saw_Delete, "partial upload marker plans scoped remote deletion");
    end;
-
 
    Status := Backup.Remote.Delete_Remote_Object
      (Rem_URL, Local, "local.zip.partial", Diagnostic);
@@ -1477,8 +1474,6 @@ begin
           "workflow restores remote archive: " & To_String (Diagnostic));
    Check (Ada.Directories.Exists (Root & "/restored.zip"),
           "remote restore creates local archive copy");
-
-
 
    Check
      (Backup.CLI.Parse

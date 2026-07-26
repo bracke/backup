@@ -676,7 +676,9 @@ begin
          Check (U32_At (Zip_Data, Central + 24) = 17_000, "large deflated uncompressed size is original size");
          Check (U32_At (Zip_Data, Descriptor) = 16#0807_4B50#, "large deflated descriptor signature is present");
          Check (U32_At (Zip_Data, Descriptor + 8) = CSize, "large deflated descriptor compressed size matches central");
-         Check (U32_At (Zip_Data, Descriptor + 12) = 17_000, "large deflated descriptor uncompressed size matches central");
+         Check
+              (U32_At (Zip_Data, Descriptor + 12) = 17_000,
+               "large deflated descriptor uncompressed size matches central");
       end;
    end;
 

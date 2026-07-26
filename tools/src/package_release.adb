@@ -105,10 +105,23 @@ begin
    Backup_Tool_Support.Require_File (Stage & "/bin/backup");
    Backup_Tool_Support.Require_File (Stage & "/share/gpr/backup.gpr");
    Backup_Tool_Support.Require_File (Stage & "/share/backup/messages.catalog");
+   --  The load-only i18n serves formatting from data files at runtime; the
+   --  build bundles them into share/i18n (tools/i18n_bundle) and gprinstall
+   --  stages them, so a deployed backup ships them at Exe/../share/i18n.
+   Backup_Tool_Support.Require_File (Stage & "/share/i18n/formats.i18ndata");
    Backup_Tool_Support.Require_File (Stage & "/share/man/man1/backup.1");
-   Backup_Tool_Support.Require_Contains (Stage & "/share/completions/backup.bash", "complete -F _backup_complete backup", "bash completion missing install content");
-   Backup_Tool_Support.Require_Contains (Stage & "/share/completions/backup.fish", "complete -c backup", "fish completion missing install content");
-   Backup_Tool_Support.Require_Contains (Stage & "/share/completions/backup.ps1", "Register-ArgumentCompleter -Native -CommandName backup", "PowerShell completion missing install content");
+   Backup_Tool_Support.Require_Contains
+        (Stage & "/share/completions/backup.bash",
+         "complete -F _backup_complete backup",
+         "bash completion missing install content");
+   Backup_Tool_Support.Require_Contains
+        (Stage & "/share/completions/backup.fish",
+         "complete -c backup",
+         "fish completion missing install content");
+   Backup_Tool_Support.Require_Contains
+        (Stage & "/share/completions/backup.ps1",
+         "Register-ArgumentCompleter -Native -CommandName backup",
+         "PowerShell completion missing install content");
    Backup_Tool_Support.Require_File (Stage & "/share/completions/_backup");
    Backup_Tool_Support.Require_File (Stage & "/share/examples/backup/example.conf");
 
@@ -124,7 +137,14 @@ begin
       Ada.Text_IO.Close (Manifest_File);
    end;
 
-   Backup_Tool_Support.Run ("package release", "tar", [1 => new String'("-C"), 2 => new String'(Stage), 3 => new String'("-czf"), 4 => new String'(Archive_Package), 5 => new String'(".")]);
+   Backup_Tool_Support.Run
+     ("package release",
+      "tar",
+      [1 => new String'("-C"),
+      2 => new String'(Stage),
+      3 => new String'("-czf"),
+      4 => new String'(Archive_Package),
+      5 => new String'(".")]);
    Backup_Tool_Support.Write_Text (Checksum, CRC32_CKSum (Archive_Package) & ASCII.LF);
    Backup_Tool_Support.Require_File (Archive_Package);
    Backup_Tool_Support.Require_File (Checksum);

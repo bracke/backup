@@ -524,8 +524,6 @@ procedure Backup_Incremental_Tests is
         (Status = Backup.Incremental.Plan_Invalid_Manifest,
          "duplicate symlink link_target is rejected");
 
-
-
       Ada.Text_IO.Create (Out_File, Ada.Text_IO.Out_File, Bad_Manifest);
       Ada.Text_IO.Put_Line
         (Out_File,
@@ -819,7 +817,6 @@ procedure Backup_Incremental_Tests is
         (Status = Backup.Incremental.Plan_Invalid_Manifest,
          "manifest entry number with leading zero is rejected");
 
-
       Ada.Text_IO.Create (Out_File, Ada.Text_IO.Out_File, Bad_Manifest);
       Ada.Text_IO.Put_Line
         (Out_File,
@@ -928,8 +925,6 @@ procedure Backup_Incremental_Tests is
          "duplicate current archive path rejected");
    end Test_Rejection_Paths;
 
-
-
    procedure Test_Skipped_Report_Planning is
       Manifest_Path : constant String :=
         Ada.Directories.Compose (Root, "empty-manifest.json");
@@ -987,7 +982,6 @@ procedure Backup_Incremental_Tests is
            '"' & "directory" & '"'),
          "incremental JSON includes skipped directory kind");
    end Test_Skipped_Report_Planning;
-
 
    procedure Test_Prior_Path_Now_Skipped_Supersedes_Removed is
       Manifest_Path : constant String :=

@@ -152,7 +152,6 @@ procedure Backup_Encryption_Tests is
       Write_All (Path, Data);
    end Mutate_Header_Salt_Byte;
 
-
    procedure Insert_Unexpected_Header_Line (Path : String) is
       Data    : constant Stream_Element_Array := Read_All (Path);
       Extra   : constant String := "ignored:unexpected" & ASCII.LF;
@@ -385,7 +384,6 @@ procedure Backup_Encryption_Tests is
       end if;
       return Result;
    end Args;
-
 
    procedure Test_Encryption_Helper_Texts is
       Cipher     : Backup.Encryption.Cipher_Kind;
@@ -673,7 +671,6 @@ procedure Backup_Encryption_Tests is
              "header-tamper decrypt removes stale plaintext target");
    end Test_Header_Tamper_Detection_Fails;
 
-
    procedure Test_Unexpected_Header_Line_Is_Rejected is
       Root       : constant String := Root_Path;
       Plain      : constant String := Ada.Directories.Compose (Root, "plain-extra-header.zip");
@@ -706,7 +703,6 @@ procedure Backup_Encryption_Tests is
              "extra-header failure removes stale plaintext target");
    end Test_Unexpected_Header_Line_Is_Rejected;
 
-
    procedure Test_Duplicate_Header_Field_Is_Rejected is
       Root       : constant String := Root_Path;
       Plain      : constant String := Ada.Directories.Compose (Root, "plain-duplicate-header.zip");
@@ -738,7 +734,6 @@ procedure Backup_Encryption_Tests is
       Check (not Ada.Directories.Exists (Dec),
              "duplicate-header failure removes stale plaintext target");
    end Test_Duplicate_Header_Field_Is_Rejected;
-
 
    procedure Test_Magic_Prefix_Without_Envelope_Is_Not_Encrypted is
       Root       : constant String := Root_Path;
@@ -820,7 +815,6 @@ procedure Backup_Encryption_Tests is
              "not-encrypted target remains readable");
    end Test_Not_Encrypted_Does_Not_Delete_Target;
 
-
    procedure Test_Password_Resolution_Errors is
       Root       : constant String := Root_Path;
       Empty_File : constant String := Ada.Directories.Compose (Root, "empty-password.txt");
@@ -886,8 +880,6 @@ procedure Backup_Encryption_Tests is
              "empty password environment variable is rejected");
       Ada.Environment_Variables.Clear ("BACKUP_PHASE19_TEST_EMPTY_ENV");
    end Test_Password_Resolution_Errors;
-
-
 
    procedure Test_Open_Failures_Preserve_Targets is
       Root       : constant String := Root_Path;
@@ -1063,8 +1055,6 @@ procedure Backup_Encryption_Tests is
       Check (not Ada.Directories.Exists (Dec),
              "unsupported cipher removes stale plaintext target");
    end Test_Unsupported_Cipher_Is_Rejected;
-
-
 
    procedure Test_CLI_Additional_Rejection_Cases is
       Config     : Backup.CLI.Configuration;
@@ -1305,7 +1295,6 @@ procedure Backup_Encryption_Tests is
       Check (not Ada.Directories.Exists (Dec),
              "minimal malformed envelope removes stale plaintext target");
    end Test_Minimal_Magic_Header_Is_Malformed_And_Cleans_Target;
-
 
    procedure Test_Output_Write_Failures_Are_Reported is
       Root       : constant String := Root_Path;

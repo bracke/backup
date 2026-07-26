@@ -9,7 +9,6 @@ with Interfaces;
 with CryptoLib.Checksums;
 with Zlib;
 
-
 with Hostkit.Fs;
 
 with Backup.Encryption;
@@ -88,7 +87,6 @@ package body Backup.Restore is
    begin
       return '"' & Json_Escape (Text) & '"';
    end Q;
-
 
    function U16_At
      (Data : Stream_Element_Array;
@@ -172,8 +170,6 @@ package body Backup.Restore is
          return Result;
       end;
    end Zlib_To_Bytes;
-
-
 
    type AES_Extra_Info is record
       Present       : Boolean := False;
@@ -683,8 +679,6 @@ package body Backup.Restore is
          null;
    end Delete_If_Exists;
 
-
-
    function Blob_U16 (Blob : String; Pos : Positive) return Unsigned_16 is
    begin
       return Unsigned_16 (Character'Pos (Blob (Pos)))
@@ -784,13 +778,11 @@ package body Backup.Restore is
          null;
    end Apply_File_Metadata;
 
-
    function Counter_Text (Value : Natural) return String is
       Image : constant String := Natural'Image (Value);
    begin
       return Image (Image'First + 1 .. Image'Last);
    end Counter_Text;
-
 
    function Unique_Rename_Path (Path : String) return String is
    begin
@@ -826,8 +818,6 @@ package body Backup.Restore is
 
       return Base & Suffix & ".overflow";
    end Unique_Temp_Path;
-
-
 
    function Selected_For_Restore
      (Config       : Backup.CLI.Configuration;
@@ -1003,54 +993,30 @@ package body Backup.Restore is
                      ("not selected by restore filters")));
             else
 
-            if Item.Kind = Backup.Verify.Entry_Manifest then
-               Report.Items.Append
-                 (Restore_Item'(Archive_Path => Item.Archive_Path,
-                   Kind         => Item.Kind,
-                   Action       => Backup.Restore_Syntax.Report_Action (Action_Skip, Config.Dry_Run),
-                   Destination  => Null_Unbounded_String,
-                   Reason       => To_Unbounded_String ("manifest metadata is validated but not restored")));
-            elsif Item.Kind = Backup.Verify.Entry_Directory then
-               declare
-                  Dest : constant String := Destination_Path
-                    (Output_Dir, To_String (Item.Archive_Path));
-               begin
-                  if Config.Dry_Run and then Output_Path_Unsafe then
-                     Diagnostic := To_Unbounded_String
-                       ("--output-dir path is unsafe: " & To_String (Output_Path_Diag));
-                     Report.Items.Append
-                       (Restore_Item'(Archive_Path => Item.Archive_Path,
-                         Kind         => Item.Kind,
-                         Action       => Action_Would_Reject,
-                         Destination  => To_Unbounded_String (Dest),
-                         Reason       => Diagnostic));
-                  elsif Existing_Ancestor_Is_Symlink
-                    (Output_Dir, To_String (Item.Archive_Path), Diagnostic)
-                  then
-                     Report.Items.Append
-                       (Restore_Item'(Archive_Path => Item.Archive_Path,
-                         Kind         => Item.Kind,
-                         Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
-                         Destination  => To_Unbounded_String (Dest),
-                         Reason       => Diagnostic));
-                     if not Config.Dry_Run then
-                        Report.Status := Restore_Target_Error;
-                        Cleanup_Temporary;
-                        return Restore_Target_Error;
-                     end if;
-                  elsif Ada.Directories.Exists (Dest) then
-                     if Ada.Directories.Kind (Dest) = Ada.Directories.Directory
-                       and then not Is_Symbolic_Link (Dest)
-                     then
+               if Item.Kind = Backup.Verify.Entry_Manifest then
+                  Report.Items.Append
+                    (Restore_Item'(Archive_Path => Item.Archive_Path,
+                      Kind         => Item.Kind,
+                      Action       => Backup.Restore_Syntax.Report_Action (Action_Skip, Config.Dry_Run),
+                      Destination  => Null_Unbounded_String,
+                      Reason       => To_Unbounded_String ("manifest metadata is validated but not restored")));
+               elsif Item.Kind = Backup.Verify.Entry_Directory then
+                  declare
+                     Dest : constant String := Destination_Path
+                       (Output_Dir, To_String (Item.Archive_Path));
+                  begin
+                     if Config.Dry_Run and then Output_Path_Unsafe then
+                        Diagnostic := To_Unbounded_String
+                          ("--output-dir path is unsafe: " & To_String (Output_Path_Diag));
                         Report.Items.Append
                           (Restore_Item'(Archive_Path => Item.Archive_Path,
                             Kind         => Item.Kind,
-                            Action       => Backup.Restore_Syntax.Report_Action (Action_Skip, Config.Dry_Run),
+                            Action       => Action_Would_Reject,
                             Destination  => To_Unbounded_String (Dest),
-                            Reason       => To_Unbounded_String ("directory already exists")));
-                     else
-                        Diagnostic := To_Unbounded_String
-                          ("destination cannot be created as a directory: " & Dest);
+                            Reason       => Diagnostic));
+                     elsif Existing_Ancestor_Is_Symlink
+                       (Output_Dir, To_String (Item.Archive_Path), Diagnostic)
+                     then
                         Report.Items.Append
                           (Restore_Item'(Archive_Path => Item.Archive_Path,
                             Kind         => Item.Kind,
@@ -1058,250 +1024,23 @@ package body Backup.Restore is
                             Destination  => To_Unbounded_String (Dest),
                             Reason       => Diagnostic));
                         if not Config.Dry_Run then
-                           Report.Status := Restore_Existing_Path;
+                           Report.Status := Restore_Target_Error;
                            Cleanup_Temporary;
-                           return Restore_Existing_Path;
+                           return Restore_Target_Error;
                         end if;
-                     end if;
-                  else
-                     Report.Items.Append
-                       (Restore_Item'(Archive_Path => Item.Archive_Path,
-                         Kind         => Item.Kind,
-                         Action       => Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
-                         Destination  => To_Unbounded_String (Dest),
-                         Reason       => Null_Unbounded_String));
-                     if not Config.Dry_Run then
-                        Ada.Directories.Create_Path (Dest);
-                     end if;
-                  end if;
-               end;
-            elsif Item.Kind = Backup.Verify.Entry_Symlink then
-               declare
-                  Dest : constant String := Destination_Path
-                    (Output_Dir, To_String (Item.Archive_Path));
-                  Target : constant String := To_String (Item.Link_Target);
-               begin
-                  if Config.Symlinks = Backup.CLI.Symlinks_Skip then
-                     Report.Items.Append
-                       (Restore_Item'(Archive_Path => Item.Archive_Path,
-                         Kind         => Item.Kind,
-                         Action       => Backup.Restore_Syntax.Report_Action (Action_Skip, Config.Dry_Run),
-                         Destination  => To_Unbounded_String (Dest),
-                         Reason       => To_Unbounded_String ("symlink restoration skipped by default")));
-                  elsif not Backup.Restore_Syntax.Symlink_Target_Is_Safe (Target) then
-                     Diagnostic := To_Unbounded_String
-                       ("unsafe symlink target for " & To_String (Item.Archive_Path) & ": " & Target);
-                     Report.Items.Append
-                       (Restore_Item'(Archive_Path => Item.Archive_Path,
-                         Kind         => Item.Kind,
-                         Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
-                         Destination  => To_Unbounded_String (Dest),
-                         Reason       => Diagnostic));
-                     if not Config.Dry_Run then
-                        Report.Status := Restore_Unsafe_Symlink;
-                        Cleanup_Temporary;
-                        return Restore_Unsafe_Symlink;
-                     end if;
-                  else
-                     declare
-                        Parent : constant String := Parent_Directory (Dest);
-                        Can_Write : Boolean := True;
-                     begin
-                        if Existing_Ancestor_Is_Symlink
-                          (Output_Dir, To_String (Item.Archive_Path), Diagnostic)
+                     elsif Ada.Directories.Exists (Dest) then
+                        if Ada.Directories.Kind (Dest) = Ada.Directories.Directory
+                          and then not Is_Symbolic_Link (Dest)
                         then
-                           Can_Write := False;
-                           Report.Items.Append
-                             (Restore_Item'(Archive_Path => Item.Archive_Path,
-                               Kind         => Item.Kind,
-                               Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
-                               Destination  => To_Unbounded_String (Dest),
-                               Reason       => Diagnostic));
-                           if not Config.Dry_Run then
-                              Report.Status := Restore_Target_Error;
-                              Cleanup_Temporary;
-                              return Restore_Target_Error;
-                           end if;
-                        elsif Ada.Directories.Exists (Dest) then
-                           case Config.Restore_Conflict is
-                              when Backup.CLI.Conflict_Skip =>
-                                 Can_Write := False;
-                                 Diagnostic := To_Unbounded_String
-                                   ("destination already exists: " & Dest);
-                                 Report.Items.Append
-                                   (Restore_Item'(Archive_Path => Item.Archive_Path,
-                                     Kind         => Item.Kind,
-                                     Action       => Backup.Restore_Syntax.Report_Action (Action_Skip, Config.Dry_Run),
-                                     Destination  => To_Unbounded_String (Dest),
-                                     Reason       => Diagnostic));
-                              when Backup.CLI.Conflict_Rename =>
-                                 declare
-                                    Renamed_To : constant String := Unique_Rename_Path (Dest);
-                                 begin
-                                    Report.Items.Append
-                                      (Restore_Item'(Archive_Path => Item.Archive_Path,
-                                        Kind         => Item.Kind,
-                                        Action       => Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
-                                        Destination  => To_Unbounded_String (Dest),
-                                        Reason       => To_Unbounded_String
-                                          ("existing destination renamed to " & Renamed_To)));
-                                    if not Config.Dry_Run then
-                                       Ada.Directories.Rename (Dest, Renamed_To);
-                                    end if;
-                                 end;
-                              when others =>
-                                 Can_Write := False;
-                                 Diagnostic := To_Unbounded_String
-                                   ("destination already exists: " & Dest);
-                                 Report.Items.Append
-                                   (Restore_Item'(Archive_Path => Item.Archive_Path,
-                                     Kind         => Item.Kind,
-                                     Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
-                                     Destination  => To_Unbounded_String (Dest),
-                                     Reason       => Diagnostic));
-                                 if not Config.Dry_Run then
-                                    Report.Status := Restore_Existing_Path;
-                                    Cleanup_Temporary;
-                                    return Restore_Existing_Path;
-                                 end if;
-                           end case;
-                        else
-                           Report.Items.Append
-                             (Restore_Item'(Archive_Path => Item.Archive_Path,
-                               Kind         => Item.Kind,
-                               Action       => Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
-                               Destination  => To_Unbounded_String (Dest),
-                               Reason       => Null_Unbounded_String));
-                        end if;
-
-                        if Can_Write and then not Config.Dry_Run then
-                           Ada.Directories.Create_Path (Parent);
-                           if not Backup.Platform.Create_Symlink (Target, Dest) then
-                              Diagnostic := To_Unbounded_String
-                                ("symlink restoration failed: " & To_String (Item.Archive_Path));
-                              Report.Status := Restore_Unsupported_Symlink;
-                              Cleanup_Temporary;
-                              return Restore_Unsupported_Symlink;
-                           end if;
-                        end if;
-                     end;
-                  end if;
-               end;
-            else
-               declare
-                  Dest          : constant String := Destination_Path
-                    (Output_Dir, To_String (Item.Archive_Path));
-                  Parent        : constant String := Parent_Directory (Dest);
-                  Payload_First : Stream_Element_Offset;
-                  Payload_Last  : Stream_Element_Offset;
-                  Output_File   : File_Type;
-                  Computed_Crc  : Unsigned_32 := 0;
-                  Computed_Size : Unsigned_64 := 0;
-               begin
-                  pragma Assert
-                    (To_String (Item.Archive_Path)'Length > 0,
-                     "restore item has a non-empty archive path");
-                  if Config.Dry_Run and then Output_Path_Unsafe then
-                     Diagnostic := To_Unbounded_String
-                       ("--output-dir path is unsafe: " & To_String (Output_Path_Diag));
-                     Report.Items.Append
-                       (Restore_Item'(Archive_Path => Item.Archive_Path,
-                         Kind         => Item.Kind,
-                         Action       => Action_Would_Reject,
-                         Destination  => To_Unbounded_String (Dest),
-                         Reason       => Diagnostic));
-                  elsif Existing_Ancestor_Is_Symlink
-                    (Output_Dir, To_String (Item.Archive_Path), Diagnostic)
-                  then
-                     Report.Items.Append
-                       (Restore_Item'(Archive_Path => Item.Archive_Path,
-                         Kind         => Item.Kind,
-                         Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
-                         Destination  => To_Unbounded_String (Dest),
-                         Reason       => Diagnostic));
-                     if not Config.Dry_Run then
-                        Report.Status := Restore_Target_Error;
-                        Cleanup_Temporary;
-                        return Restore_Target_Error;
-                     end if;
-                  elsif Ada.Directories.Exists (Dest) then
-                     case Config.Restore_Conflict is
-                        when Backup.CLI.Conflict_Skip =>
-                           Diagnostic := To_Unbounded_String
-                             ("destination already exists: " & Dest);
                            Report.Items.Append
                              (Restore_Item'(Archive_Path => Item.Archive_Path,
                                Kind         => Item.Kind,
                                Action       => Backup.Restore_Syntax.Report_Action (Action_Skip, Config.Dry_Run),
                                Destination  => To_Unbounded_String (Dest),
-                               Reason       => Diagnostic));
-
-                        when Backup.CLI.Conflict_Overwrite =>
-                           if Is_Symbolic_Link (Dest)
-                             or else Ada.Directories.Kind (Dest)
-                               /= Ada.Directories.Ordinary_File
-                           then
-                              Diagnostic := To_Unbounded_String
-                                ("destination cannot be overwritten safely: " & Dest);
-                              Report.Items.Append
-                                (Restore_Item'(Archive_Path => Item.Archive_Path,
-                                  Kind         => Item.Kind,
-                                  Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
-                                  Destination  => To_Unbounded_String (Dest),
-                                  Reason       => Diagnostic));
-                              if not Config.Dry_Run then
-                                 Report.Status := Restore_Existing_Path;
-                                 Cleanup_Temporary;
-                                 return Restore_Existing_Path;
-                              end if;
-                           else
-                              Report.Items.Append
-                                (Restore_Item'(Archive_Path => Item.Archive_Path,
-                                  Kind         => Item.Kind,
-                                  Action       => Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
-                                  Destination  => To_Unbounded_String (Dest),
-                                  Reason       => To_Unbounded_String
-                                    ("destination overwritten")));
-                              if not Config.Dry_Run then
-                                 Ada.Directories.Delete_File (Dest);
-                              end if;
-                           end if;
-
-                        when Backup.CLI.Conflict_Rename =>
-                           if Is_Symbolic_Link (Dest) then
-                              Diagnostic := To_Unbounded_String
-                                ("destination cannot be renamed safely: " & Dest);
-                              Report.Items.Append
-                                (Restore_Item'(Archive_Path => Item.Archive_Path,
-                                  Kind         => Item.Kind,
-                                  Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
-                                  Destination  => To_Unbounded_String (Dest),
-                                  Reason       => Diagnostic));
-                              if not Config.Dry_Run then
-                                 Report.Status := Restore_Existing_Path;
-                                 Cleanup_Temporary;
-                                 return Restore_Existing_Path;
-                              end if;
-                           else
-                              declare
-                                 Renamed_To : constant String := Unique_Rename_Path (Dest);
-                              begin
-                                 Report.Items.Append
-                                   (Restore_Item'(Archive_Path => Item.Archive_Path,
-                                     Kind         => Item.Kind,
-                                     Action       => Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
-                                     Destination  => To_Unbounded_String (Dest),
-                                     Reason       => To_Unbounded_String
-                                       ("existing destination renamed to " & Renamed_To)));
-                                 if not Config.Dry_Run then
-                                    Ada.Directories.Rename (Dest, Renamed_To);
-                                 end if;
-                              end;
-                           end if;
-
-                        when Backup.CLI.Conflict_Reject =>
+                               Reason       => To_Unbounded_String ("directory already exists")));
+                        else
                            Diagnostic := To_Unbounded_String
-                             ("destination already exists: " & Dest);
+                             ("destination cannot be created as a directory: " & Dest);
                            Report.Items.Append
                              (Restore_Item'(Archive_Path => Item.Archive_Path,
                                Kind         => Item.Kind,
@@ -1313,262 +1052,521 @@ package body Backup.Restore is
                               Cleanup_Temporary;
                               return Restore_Existing_Path;
                            end if;
-                     end case;
-                  else
-
-                     Report.Items.Append
-                       (Restore_Item'(Archive_Path => Item.Archive_Path,
-                         Kind         => Item.Kind,
-                         Action       => Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
-                         Destination  => To_Unbounded_String (Dest),
-                         Reason       => Null_Unbounded_String));
-                  end if;
-
-                  if not Config.Dry_Run and then not Ada.Directories.Exists (Dest) then
-                     Ada.Directories.Create_Path (Parent);
-                     if not Local_Payload_First (Data, Item, Payload_First) then
-                        Diagnostic := To_Unbounded_String
-                          ("local payload could not be located for " & To_String (Item.Archive_Path));
-                        Report.Status := Restore_Read_Error;
-                        Cleanup_Temporary;
-                        return Restore_Read_Error;
+                        end if;
+                     else
+                        Report.Items.Append
+                          (Restore_Item'(Archive_Path => Item.Archive_Path,
+                            Kind         => Item.Kind,
+                            Action       => Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
+                            Destination  => To_Unbounded_String (Dest),
+                            Reason       => Null_Unbounded_String));
+                        if not Config.Dry_Run then
+                           Ada.Directories.Create_Path (Dest);
+                        end if;
                      end if;
-                     Create (Output_File, Out_File, Dest);
-                     declare
-                        Local     : constant Stream_Element_Offset :=
-                          Stream_Element_Offset (Item.Local_Offset);
-                        Flags     : constant Unsigned_16 := U16_At (Data, Local + 6);
-                        Local_Method : constant Unsigned_16 := U16_At (Data, Local + 8);
-                        Name_Len  : constant Unsigned_16 := U16_At (Data, Local + 26);
-                        Extra_Len : constant Unsigned_16 := U16_At (Data, Local + 28);
-                        Extra_First : constant Stream_Element_Offset :=
-                          Local + 30 + Stream_Element_Offset (Name_Len);
-                        Extra_Last : constant Stream_Element_Offset :=
-                          Extra_First + Stream_Element_Offset (Extra_Len) - 1;
-                        AES_Info  : constant AES_Extra_Info :=
-                          Parse_AES_Extra (Data, Extra_First, Extra_Last);
-                        AES_Entry : constant Boolean := Local_Method = 99;
-                        Encrypted : constant Boolean := (Flags and 1) /= 0;
-                     begin
-                        Payload_Last :=
-                          Payload_First + Stream_Element_Offset (Item.Compressed_Size) - 1;
-                        if Zlib.Is_ZIP_External_Method (Item.Method) then
-                           declare
-                              Codec_Status : Zlib.Status_Code := Zlib.Ok;
-                              Plain_Zlib : constant Zlib.Byte_Array :=
-                                Zlib.Extract_ZIP_External_Entry
-                                  (Bytes_To_Zlib (Data, Data'First, Data'Last),
-                                   To_String (Item.Archive_Path),
-                                   To_String (Zip_Password), Codec_Status);
-                              Plain : constant Stream_Element_Array :=
-                                Zlib_To_Bytes (Plain_Zlib);
-                           begin
-                              if Codec_Status /= Zlib.Ok then
-                                 Close (Output_File);
-                                 Remove_Partial_File (Dest);
-                                 Diagnostic := To_Unbounded_String
-                                   ("external ZIP codec extraction failed for " &
-                                    To_String (Item.Archive_Path));
-                                 Report.Status := Restore_Deflate_Invalid;
+                  end;
+               elsif Item.Kind = Backup.Verify.Entry_Symlink then
+                  declare
+                     Dest : constant String := Destination_Path
+                       (Output_Dir, To_String (Item.Archive_Path));
+                     Target : constant String := To_String (Item.Link_Target);
+                  begin
+                     if Config.Symlinks = Backup.CLI.Symlinks_Skip then
+                        Report.Items.Append
+                          (Restore_Item'(Archive_Path => Item.Archive_Path,
+                            Kind         => Item.Kind,
+                            Action       => Backup.Restore_Syntax.Report_Action (Action_Skip, Config.Dry_Run),
+                            Destination  => To_Unbounded_String (Dest),
+                            Reason       => To_Unbounded_String ("symlink restoration skipped by default")));
+                     elsif not Backup.Restore_Syntax.Symlink_Target_Is_Safe (Target) then
+                        Diagnostic := To_Unbounded_String
+                          ("unsafe symlink target for " & To_String (Item.Archive_Path) & ": " & Target);
+                        Report.Items.Append
+                          (Restore_Item'(Archive_Path => Item.Archive_Path,
+                            Kind         => Item.Kind,
+                            Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
+                            Destination  => To_Unbounded_String (Dest),
+                            Reason       => Diagnostic));
+                        if not Config.Dry_Run then
+                           Report.Status := Restore_Unsafe_Symlink;
+                           Cleanup_Temporary;
+                           return Restore_Unsafe_Symlink;
+                        end if;
+                     else
+                        declare
+                           Parent : constant String := Parent_Directory (Dest);
+                           Can_Write : Boolean := True;
+                        begin
+                           if Existing_Ancestor_Is_Symlink
+                             (Output_Dir, To_String (Item.Archive_Path), Diagnostic)
+                           then
+                              Can_Write := False;
+                              Report.Items.Append
+                                (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                  Kind         => Item.Kind,
+                                  Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
+                                  Destination  => To_Unbounded_String (Dest),
+                                  Reason       => Diagnostic));
+                              if not Config.Dry_Run then
+                                 Report.Status := Restore_Target_Error;
                                  Cleanup_Temporary;
-                                 return Restore_Deflate_Invalid;
+                                 return Restore_Target_Error;
                               end if;
-                              Computed_Size := Unsigned_64 (Plain'Length);
-                              if Plain'Length = 0 then
-                                 Computed_Crc := 0;
+                           elsif Ada.Directories.Exists (Dest) then
+                              case Config.Restore_Conflict is
+                                 when Backup.CLI.Conflict_Skip =>
+                                    Can_Write := False;
+                                    Diagnostic := To_Unbounded_String
+                                      ("destination already exists: " & Dest);
+                                    Report.Items.Append
+                                      (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                        Kind         => Item.Kind,
+                                        Action =>
+                                           Backup.Restore_Syntax.Report_Action (Action_Skip, Config.Dry_Run),
+                                        Destination  => To_Unbounded_String (Dest),
+                                        Reason       => Diagnostic));
+                                 when Backup.CLI.Conflict_Rename =>
+                                    declare
+                                       Renamed_To : constant String := Unique_Rename_Path (Dest);
+                                    begin
+                                       Report.Items.Append
+                                         (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                           Kind         => Item.Kind,
+                                           Action =>
+                                              Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
+                                           Destination  => To_Unbounded_String (Dest),
+                                           Reason       => To_Unbounded_String
+                                             ("existing destination renamed to " & Renamed_To)));
+                                       if not Config.Dry_Run then
+                                          Ada.Directories.Rename (Dest, Renamed_To);
+                                       end if;
+                                    end;
+                                 when others =>
+                                    Can_Write := False;
+                                    Diagnostic := To_Unbounded_String
+                                      ("destination already exists: " & Dest);
+                                    Report.Items.Append
+                                      (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                        Kind         => Item.Kind,
+                                        Action =>
+                                           Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
+                                        Destination  => To_Unbounded_String (Dest),
+                                        Reason       => Diagnostic));
+                                    if not Config.Dry_Run then
+                                       Report.Status := Restore_Existing_Path;
+                                       Cleanup_Temporary;
+                                       return Restore_Existing_Path;
+                                    end if;
+                              end case;
+                           else
+                              Report.Items.Append
+                                (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                  Kind         => Item.Kind,
+                                  Action       => Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
+                                  Destination  => To_Unbounded_String (Dest),
+                                  Reason       => Null_Unbounded_String));
+                           end if;
+
+                           if Can_Write and then not Config.Dry_Run then
+                              Ada.Directories.Create_Path (Parent);
+                              if not Backup.Platform.Create_Symlink (Target, Dest) then
+                                 Diagnostic := To_Unbounded_String
+                                   ("symlink restoration failed: " & To_String (Item.Archive_Path));
+                                 Report.Status := Restore_Unsupported_Symlink;
+                                 Cleanup_Temporary;
+                                 return Restore_Unsupported_Symlink;
+                              end if;
+                           end if;
+                        end;
+                     end if;
+                  end;
+               else
+                  declare
+                     Dest          : constant String := Destination_Path
+                       (Output_Dir, To_String (Item.Archive_Path));
+                     Parent        : constant String := Parent_Directory (Dest);
+                     Payload_First : Stream_Element_Offset;
+                     Payload_Last  : Stream_Element_Offset;
+                     Output_File   : File_Type;
+                     Computed_Crc  : Unsigned_32 := 0;
+                     Computed_Size : Unsigned_64 := 0;
+                  begin
+                     pragma Assert
+                       (To_String (Item.Archive_Path)'Length > 0,
+                        "restore item has a non-empty archive path");
+                     if Config.Dry_Run and then Output_Path_Unsafe then
+                        Diagnostic := To_Unbounded_String
+                          ("--output-dir path is unsafe: " & To_String (Output_Path_Diag));
+                        Report.Items.Append
+                          (Restore_Item'(Archive_Path => Item.Archive_Path,
+                            Kind         => Item.Kind,
+                            Action       => Action_Would_Reject,
+                            Destination  => To_Unbounded_String (Dest),
+                            Reason       => Diagnostic));
+                     elsif Existing_Ancestor_Is_Symlink
+                       (Output_Dir, To_String (Item.Archive_Path), Diagnostic)
+                     then
+                        Report.Items.Append
+                          (Restore_Item'(Archive_Path => Item.Archive_Path,
+                            Kind         => Item.Kind,
+                            Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
+                            Destination  => To_Unbounded_String (Dest),
+                            Reason       => Diagnostic));
+                        if not Config.Dry_Run then
+                           Report.Status := Restore_Target_Error;
+                           Cleanup_Temporary;
+                           return Restore_Target_Error;
+                        end if;
+                     elsif Ada.Directories.Exists (Dest) then
+                        case Config.Restore_Conflict is
+                           when Backup.CLI.Conflict_Skip =>
+                              Diagnostic := To_Unbounded_String
+                                ("destination already exists: " & Dest);
+                              Report.Items.Append
+                                (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                  Kind         => Item.Kind,
+                                  Action       => Backup.Restore_Syntax.Report_Action (Action_Skip, Config.Dry_Run),
+                                  Destination  => To_Unbounded_String (Dest),
+                                  Reason       => Diagnostic));
+
+                           when Backup.CLI.Conflict_Overwrite =>
+                              if Is_Symbolic_Link (Dest)
+                                or else Ada.Directories.Kind (Dest)
+                                  /= Ada.Directories.Ordinary_File
+                              then
+                                 Diagnostic := To_Unbounded_String
+                                   ("destination cannot be overwritten safely: " & Dest);
+                                 Report.Items.Append
+                                   (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                     Kind         => Item.Kind,
+                                     Action =>
+                                        Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
+                                     Destination  => To_Unbounded_String (Dest),
+                                     Reason       => Diagnostic));
+                                 if not Config.Dry_Run then
+                                    Report.Status := Restore_Existing_Path;
+                                    Cleanup_Temporary;
+                                    return Restore_Existing_Path;
+                                 end if;
                               else
-                                 Write (Output_File, Plain);
+                                 Report.Items.Append
+                                   (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                     Kind         => Item.Kind,
+                                     Action =>
+                                        Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
+                                     Destination  => To_Unbounded_String (Dest),
+                                     Reason       => To_Unbounded_String
+                                       ("destination overwritten")));
+                                 if not Config.Dry_Run then
+                                    Ada.Directories.Delete_File (Dest);
+                                 end if;
+                              end if;
+
+                           when Backup.CLI.Conflict_Rename =>
+                              if Is_Symbolic_Link (Dest) then
+                                 Diagnostic := To_Unbounded_String
+                                   ("destination cannot be renamed safely: " & Dest);
+                                 Report.Items.Append
+                                   (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                     Kind         => Item.Kind,
+                                     Action =>
+                                        Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
+                                     Destination  => To_Unbounded_String (Dest),
+                                     Reason       => Diagnostic));
+                                 if not Config.Dry_Run then
+                                    Report.Status := Restore_Existing_Path;
+                                    Cleanup_Temporary;
+                                    return Restore_Existing_Path;
+                                 end if;
+                              else
                                  declare
-                                    Crc_State : CryptoLib.Checksums.CRC32_State;
+                                    Renamed_To : constant String := Unique_Rename_Path (Dest);
                                  begin
-                                    CryptoLib.Checksums.CRC32_Reset (Crc_State);
-                                    CryptoLib.Checksums.CRC32_Update (Crc_State, Plain);
-                                    Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
+                                    Report.Items.Append
+                                      (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                        Kind         => Item.Kind,
+                                        Action =>
+                                           Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
+                                        Destination  => To_Unbounded_String (Dest),
+                                        Reason       => To_Unbounded_String
+                                          ("existing destination renamed to " & Renamed_To)));
+                                    if not Config.Dry_Run then
+                                       Ada.Directories.Rename (Dest, Renamed_To);
+                                    end if;
                                  end;
                               end if;
-                           end;
-                        elsif AES_Entry then
-                           declare
-                              Salt_Length : constant Natural :=
-                                AES_Salt_Length (AES_Info.Strength);
-                              Cipher_Length : constant Unsigned_64 :=
-                                Item.Compressed_Size -
-                                Unsigned_64 (Salt_Length + 2 + 10);
-                              Plain : Stream_Element_Array
-                                (1 .. Stream_Element_Offset (Cipher_Length));
-                              Valid_AES : Boolean := False;
-                           begin
-                              if not AES_Info.Valid
-                                or else AES_Info.Actual_Method /= Item.Method
-                                or else Item.Compressed_Size <
-                                  Unsigned_64 (Salt_Length + 2 + 10)
+
+                           when Backup.CLI.Conflict_Reject =>
+                              Diagnostic := To_Unbounded_String
+                                ("destination already exists: " & Dest);
+                              Report.Items.Append
+                                (Restore_Item'(Archive_Path => Item.Archive_Path,
+                                  Kind         => Item.Kind,
+                                  Action       => Backup.Restore_Syntax.Report_Action (Action_Reject, Config.Dry_Run),
+                                  Destination  => To_Unbounded_String (Dest),
+                                  Reason       => Diagnostic));
+                              if not Config.Dry_Run then
+                                 Report.Status := Restore_Existing_Path;
+                                 Cleanup_Temporary;
+                                 return Restore_Existing_Path;
+                              end if;
+                        end case;
+                     else
+
+                        Report.Items.Append
+                          (Restore_Item'(Archive_Path => Item.Archive_Path,
+                            Kind         => Item.Kind,
+                            Action       => Backup.Restore_Syntax.Report_Action (Action_Restore, Config.Dry_Run),
+                            Destination  => To_Unbounded_String (Dest),
+                            Reason       => Null_Unbounded_String));
+                     end if;
+
+                     if not Config.Dry_Run and then not Ada.Directories.Exists (Dest) then
+                        Ada.Directories.Create_Path (Parent);
+                        if not Local_Payload_First (Data, Item, Payload_First) then
+                           Diagnostic := To_Unbounded_String
+                             ("local payload could not be located for " & To_String (Item.Archive_Path));
+                           Report.Status := Restore_Read_Error;
+                           Cleanup_Temporary;
+                           return Restore_Read_Error;
+                        end if;
+                        Create (Output_File, Out_File, Dest);
+                        declare
+                           Local     : constant Stream_Element_Offset :=
+                             Stream_Element_Offset (Item.Local_Offset);
+                           Flags     : constant Unsigned_16 := U16_At (Data, Local + 6);
+                           Local_Method : constant Unsigned_16 := U16_At (Data, Local + 8);
+                           Name_Len  : constant Unsigned_16 := U16_At (Data, Local + 26);
+                           Extra_Len : constant Unsigned_16 := U16_At (Data, Local + 28);
+                           Extra_First : constant Stream_Element_Offset :=
+                             Local + 30 + Stream_Element_Offset (Name_Len);
+                           Extra_Last : constant Stream_Element_Offset :=
+                             Extra_First + Stream_Element_Offset (Extra_Len) - 1;
+                           AES_Info  : constant AES_Extra_Info :=
+                             Parse_AES_Extra (Data, Extra_First, Extra_Last);
+                           AES_Entry : constant Boolean := Local_Method = 99;
+                           Encrypted : constant Boolean := (Flags and 1) /= 0;
+                        begin
+                           Payload_Last :=
+                             Payload_First + Stream_Element_Offset (Item.Compressed_Size) - 1;
+                           if Zlib.Is_ZIP_External_Method (Item.Method) then
+                              declare
+                                 Codec_Status : Zlib.Status_Code := Zlib.Ok;
+                                 Plain_Zlib : constant Zlib.Byte_Array :=
+                                   Zlib.Extract_ZIP_External_Entry
+                                     (Bytes_To_Zlib (Data, Data'First, Data'Last),
+                                      To_String (Item.Archive_Path),
+                                      To_String (Zip_Password), Codec_Status);
+                                 Plain : constant Stream_Element_Array :=
+                                   Zlib_To_Bytes (Plain_Zlib);
+                              begin
+                                 if Codec_Status /= Zlib.Ok then
+                                    Close (Output_File);
+                                    Remove_Partial_File (Dest);
+                                    Diagnostic := To_Unbounded_String
+                                      ("external ZIP codec extraction failed for " &
+                                       To_String (Item.Archive_Path));
+                                    Report.Status := Restore_Deflate_Invalid;
+                                    Cleanup_Temporary;
+                                    return Restore_Deflate_Invalid;
+                                 end if;
+                                 Computed_Size := Unsigned_64 (Plain'Length);
+                                 if Plain'Length = 0 then
+                                    Computed_Crc := 0;
+                                 else
+                                    Write (Output_File, Plain);
+                                    declare
+                                       Crc_State : CryptoLib.Checksums.CRC32_State;
+                                    begin
+                                       CryptoLib.Checksums.CRC32_Reset (Crc_State);
+                                       CryptoLib.Checksums.CRC32_Update (Crc_State, Plain);
+                                       Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
+                                    end;
+                                 end if;
+                              end;
+                           elsif AES_Entry then
+                              declare
+                                 Salt_Length : constant Natural :=
+                                   AES_Salt_Length (AES_Info.Strength);
+                                 Cipher_Length : constant Unsigned_64 :=
+                                   Item.Compressed_Size -
+                                   Unsigned_64 (Salt_Length + 2 + 10);
+                                 Plain : Stream_Element_Array
+                                   (1 .. Stream_Element_Offset (Cipher_Length));
+                                 Valid_AES : Boolean := False;
+                              begin
+                                 if not AES_Info.Valid
+                                   or else AES_Info.Actual_Method /= Item.Method
+                                   or else Item.Compressed_Size <
+                                     Unsigned_64 (Salt_Length + 2 + 10)
+                                   or else Length (Zip_Password) = 0
+                                 then
+                                    Close (Output_File);
+                                    Remove_Partial_File (Dest);
+                                    Diagnostic := To_Unbounded_String
+                                      ("AES ZIP payload cannot be extracted for " &
+                                       To_String (Item.Archive_Path));
+                                    Report.Status := Restore_Read_Error;
+                                    Cleanup_Temporary;
+                                    return Restore_Read_Error;
+                                 end if;
+                                 Decrypt_AES_Payload
+                                   (Data, Payload_First, Payload_Last,
+                                    AES_Info.Strength, To_String (Zip_Password),
+                                    Plain, Valid_AES);
+                                 if not Valid_AES then
+                                    Close (Output_File);
+                                    Remove_Partial_File (Dest);
+                                    Diagnostic := To_Unbounded_String
+                                      ("AES ZIP payload authentication failed for " &
+                                       To_String (Item.Archive_Path));
+                                    Report.Status := Restore_Crc_Mismatch;
+                                    Cleanup_Temporary;
+                                    return Restore_Crc_Mismatch;
+                                 end if;
+                                 if Item.Method = 0 then
+                                    Computed_Size := Unsigned_64 (Plain'Length);
+                                    if Plain'Length = 0 then
+                                       Computed_Crc := 0;
+                                    else
+                                       Write (Output_File, Plain);
+                                       declare
+                                          Crc_State : CryptoLib.Checksums.CRC32_State;
+                                       begin
+                                          CryptoLib.Checksums.CRC32_Reset (Crc_State);
+                                          CryptoLib.Checksums.CRC32_Update (Crc_State, Plain);
+                                          Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
+                                       end;
+                                    end if;
+                                 elsif Item.Method = 8 then
+                                    if not Inflate_Deflate_Payload
+                                      (Plain, Plain'First, Plain'Last, Output_File,
+                                       Computed_Crc, Computed_Size)
+                                    then
+                                       Close (Output_File);
+                                       Remove_Partial_File (Dest);
+                                       Diagnostic := To_Unbounded_String
+                                         ("deflate payload extraction failed for " & To_String (Item.Archive_Path));
+                                       Report.Status := Restore_Deflate_Invalid;
+                                       Cleanup_Temporary;
+                                       return Restore_Deflate_Invalid;
+                                    end if;
+                                 end if;
+                              end;
+                           elsif Encrypted then
+                              if Item.Compressed_Size < 12
                                 or else Length (Zip_Password) = 0
                               then
                                  Close (Output_File);
                                  Remove_Partial_File (Dest);
                                  Diagnostic := To_Unbounded_String
-                                   ("AES ZIP payload cannot be extracted for " &
+                                   ("encrypted ZIP payload cannot be extracted for " &
                                     To_String (Item.Archive_Path));
                                  Report.Status := Restore_Read_Error;
                                  Cleanup_Temporary;
                                  return Restore_Read_Error;
                               end if;
-                              Decrypt_AES_Payload
-                                (Data, Payload_First, Payload_Last,
-                                 AES_Info.Strength, To_String (Zip_Password),
-                                 Plain, Valid_AES);
-                              if not Valid_AES then
+                              declare
+                                 Plain : constant Stream_Element_Array :=
+                                   Zipcrypto_Decrypt_Data
+                                     (Data, Payload_First, Payload_Last,
+                                      To_String (Zip_Password));
+                              begin
+                                 if Item.Method = 0 then
+                                    Computed_Size := Unsigned_64 (Plain'Length);
+                                    if Plain'Length = 0 then
+                                       Computed_Crc := 0;
+                                    else
+                                       Write (Output_File, Plain);
+                                       declare
+                                          Crc_State : CryptoLib.Checksums.CRC32_State;
+                                       begin
+                                          CryptoLib.Checksums.CRC32_Reset (Crc_State);
+                                          CryptoLib.Checksums.CRC32_Update (Crc_State, Plain);
+                                          Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
+                                       end;
+                                    end if;
+                                 elsif Item.Method = 8 then
+                                    if not Inflate_Deflate_Payload
+                                      (Plain, Plain'First, Plain'Last, Output_File,
+                                       Computed_Crc, Computed_Size)
+                                    then
+                                       Close (Output_File);
+                                       Remove_Partial_File (Dest);
+                                       Diagnostic := To_Unbounded_String
+                                         ("deflate payload extraction failed for " & To_String (Item.Archive_Path));
+                                       Report.Status := Restore_Deflate_Invalid;
+                                       Cleanup_Temporary;
+                                       return Restore_Deflate_Invalid;
+                                    end if;
+                                 end if;
+                              end;
+                           elsif Item.Method = 0 then
+                              Computed_Size := Item.Compressed_Size;
+                              if Item.Compressed_Size = 0 then
+                                 Computed_Crc := 0;
+                              else
+                                 Write (Output_File, Data (Payload_First .. Payload_Last));
+                                 declare
+                                    Crc_State : CryptoLib.Checksums.CRC32_State;
+                                 begin
+                                    CryptoLib.Checksums.CRC32_Reset (Crc_State);
+                                    CryptoLib.Checksums.CRC32_Update
+                                      (Crc_State, Data (Payload_First .. Payload_Last));
+                                    Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
+                                 end;
+                              end if;
+                           elsif Item.Method = 8 then
+                              if not Inflate_Deflate_Payload
+                                (Data, Payload_First, Payload_Last, Output_File,
+                                 Computed_Crc, Computed_Size)
+                              then
                                  Close (Output_File);
                                  Remove_Partial_File (Dest);
                                  Diagnostic := To_Unbounded_String
-                                   ("AES ZIP payload authentication failed for " &
-                                    To_String (Item.Archive_Path));
-                                 Report.Status := Restore_Crc_Mismatch;
+                                   ("deflate payload extraction failed for " & To_String (Item.Archive_Path));
+                                 Report.Status := Restore_Deflate_Invalid;
                                  Cleanup_Temporary;
-                                 return Restore_Crc_Mismatch;
+                                 return Restore_Deflate_Invalid;
                               end if;
-                              if Item.Method = 0 then
-                                 Computed_Size := Unsigned_64 (Plain'Length);
-                                 if Plain'Length = 0 then
-                                    Computed_Crc := 0;
-                                 else
-                                    Write (Output_File, Plain);
-                                    declare
-                                       Crc_State : CryptoLib.Checksums.CRC32_State;
-                                    begin
-                                       CryptoLib.Checksums.CRC32_Reset (Crc_State);
-                                       CryptoLib.Checksums.CRC32_Update (Crc_State, Plain);
-                                       Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
-                                    end;
-                                 end if;
-                              elsif Item.Method = 8 then
-                                 if not Inflate_Deflate_Payload
-                                   (Plain, Plain'First, Plain'Last, Output_File,
-                                    Computed_Crc, Computed_Size)
-                                 then
-                                    Close (Output_File);
-                                    Remove_Partial_File (Dest);
-                                    Diagnostic := To_Unbounded_String
-                                      ("deflate payload extraction failed for " & To_String (Item.Archive_Path));
-                                    Report.Status := Restore_Deflate_Invalid;
-                                    Cleanup_Temporary;
-                                    return Restore_Deflate_Invalid;
-                                 end if;
-                              end if;
-                           end;
-                        elsif Encrypted then
-                           if Item.Compressed_Size < 12
-                             or else Length (Zip_Password) = 0
-                           then
-                              Close (Output_File);
-                              Remove_Partial_File (Dest);
-                              Diagnostic := To_Unbounded_String
-                                ("encrypted ZIP payload cannot be extracted for " &
-                                 To_String (Item.Archive_Path));
-                              Report.Status := Restore_Read_Error;
-                              Cleanup_Temporary;
-                              return Restore_Read_Error;
-                           end if;
-                           declare
-                              Plain : constant Stream_Element_Array :=
-                                Zipcrypto_Decrypt_Data
-                                  (Data, Payload_First, Payload_Last,
-                                   To_String (Zip_Password));
-                           begin
-                              if Item.Method = 0 then
-                                 Computed_Size := Unsigned_64 (Plain'Length);
-                                 if Plain'Length = 0 then
-                                    Computed_Crc := 0;
-                                 else
-                                    Write (Output_File, Plain);
-                                    declare
-                                       Crc_State : CryptoLib.Checksums.CRC32_State;
-                                    begin
-                                       CryptoLib.Checksums.CRC32_Reset (Crc_State);
-                                       CryptoLib.Checksums.CRC32_Update (Crc_State, Plain);
-                                       Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
-                                    end;
-                                 end if;
-                              elsif Item.Method = 8 then
-                                 if not Inflate_Deflate_Payload
-                                   (Plain, Plain'First, Plain'Last, Output_File,
-                                    Computed_Crc, Computed_Size)
-                                 then
-                                    Close (Output_File);
-                                    Remove_Partial_File (Dest);
-                                    Diagnostic := To_Unbounded_String
-                                      ("deflate payload extraction failed for " & To_String (Item.Archive_Path));
-                                    Report.Status := Restore_Deflate_Invalid;
-                                    Cleanup_Temporary;
-                                    return Restore_Deflate_Invalid;
-                                 end if;
-                              end if;
-                           end;
-                        elsif Item.Method = 0 then
-                           Computed_Size := Item.Compressed_Size;
-                           if Item.Compressed_Size = 0 then
-                              Computed_Crc := 0;
                            else
-                              Write (Output_File, Data (Payload_First .. Payload_Last));
-                              declare
-                                 Crc_State : CryptoLib.Checksums.CRC32_State;
-                              begin
-                                 CryptoLib.Checksums.CRC32_Reset (Crc_State);
-                                 CryptoLib.Checksums.CRC32_Update
-                                   (Crc_State, Data (Payload_First .. Payload_Last));
-                                 Computed_Crc := CryptoLib.Checksums.CRC32_Value (Crc_State);
-                              end;
-                           end if;
-                        elsif Item.Method = 8 then
-                           if not Inflate_Deflate_Payload
-                             (Data, Payload_First, Payload_Last, Output_File,
-                              Computed_Crc, Computed_Size)
-                           then
                               Close (Output_File);
                               Remove_Partial_File (Dest);
                               Diagnostic := To_Unbounded_String
-                                ("deflate payload extraction failed for " & To_String (Item.Archive_Path));
-                              Report.Status := Restore_Deflate_Invalid;
+                                ("unsupported method reached restore after verification: "
+                                   & Decimal (Unsigned_64 (Item.Method)));
+                              Report.Status := Restore_Internal_Error;
                               Cleanup_Temporary;
-                              return Restore_Deflate_Invalid;
+                              return Restore_Internal_Error;
                            end if;
-                        else
-                           Close (Output_File);
+                        end;
+                        Close (Output_File);
+
+                        if Computed_Size /= Item.Uncompressed_Size
+                          or else Computed_Crc /= Item.Crc32
+                        then
                            Remove_Partial_File (Dest);
                            Diagnostic := To_Unbounded_String
-                             ("unsupported method reached restore after verification: " & Decimal (Unsigned_64 (Item.Method)));
-                           Report.Status := Restore_Internal_Error;
+                             ("restored payload CRC32 or size mismatch for " &
+                              To_String (Item.Archive_Path));
+                           Report.Status := Restore_Crc_Mismatch;
                            Cleanup_Temporary;
-                           return Restore_Internal_Error;
+                           return Restore_Crc_Mismatch;
                         end if;
-                     end;
-                     Close (Output_File);
 
-                     if Computed_Size /= Item.Uncompressed_Size
-                       or else Computed_Crc /= Item.Crc32
-                     then
+                        Apply_File_Metadata (Dest, Item);
+                     end if;
+                  exception
+                     when Error : others =>
                         Remove_Partial_File (Dest);
                         Diagnostic := To_Unbounded_String
-                          ("restored payload CRC32 or size mismatch for " &
-                           To_String (Item.Archive_Path));
-                        Report.Status := Restore_Crc_Mismatch;
+                          ("failed to restore " & To_String (Item.Archive_Path) &
+                           ": " & Ada.Exceptions.Exception_Message (Error));
+                        Report.Status := Restore_Write_Error;
                         Cleanup_Temporary;
-                        return Restore_Crc_Mismatch;
-                     end if;
-
-                     Apply_File_Metadata (Dest, Item);
-                  end if;
-               exception
-                  when Error : others =>
-                     Remove_Partial_File (Dest);
-                     Diagnostic := To_Unbounded_String
-                       ("failed to restore " & To_String (Item.Archive_Path) &
-                        ": " & Ada.Exceptions.Exception_Message (Error));
-                     Report.Status := Restore_Write_Error;
-                     Cleanup_Temporary;
-                     return Restore_Write_Error;
-               end;
-            end if;
+                        return Restore_Write_Error;
+                  end;
+               end if;
             end if;
          end loop;
       end;

@@ -751,7 +751,6 @@ package body Backup.Scanner is
       Report.Symlink_Diagnostics.Clear;
       Diagnostic := Null_Unbounded_String;
 
-
       for Ignore_File of Config.Ignore_Files loop
          Status := Load_Ignore_File
            (Ignore_File, "", Root_Rules, Diagnostic);

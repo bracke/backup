@@ -29,7 +29,6 @@ package body Backup.Jobs is
      (Index_Type   => Positive,
       Element_Type => Natural);
 
-
    function Environment_Job_Value
      (Name       : String;
       Field      : String;
@@ -70,7 +69,6 @@ package body Backup.Jobs is
    begin
       return Backup.Jobs_Syntax.Starts_With (Value, Prefix);
    end Starts_With;
-
 
    function Normalize_Path (Path : String) return String is
    begin
@@ -224,7 +222,6 @@ package body Backup.Jobs is
 
       return True;
    end Parse_Symlinks;
-
 
    function Valid_Schedule_Metadata
      (Value      : String;
@@ -1382,7 +1379,6 @@ package body Backup.Jobs is
          Json_Errors => False);
    end To_CLI_Config;
 
-
    function Directory_Of (Path : String) return String is
    begin
       if Ada.Directories.Containing_Directory (Path) = "" then
@@ -1686,9 +1682,6 @@ package body Backup.Jobs is
       return Job_Ok;
    end Select_Retention_Deletions;
 
-
-
-
    procedure Sort_Managed_By_Path
      (Items : in out Managed_Backup_Vectors.Vector)
    is
@@ -1786,8 +1779,6 @@ package body Backup.Jobs is
          end if;
          Candidates.Clear;
    end Load_Managed_Backups;
-
-
 
    function Load_Remote_Managed_Backups
      (Remote_URL  : String;

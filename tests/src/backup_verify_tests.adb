@@ -151,12 +151,24 @@ procedure Backup_Verify_Tests is
    is
       Result : Backup.CLI.String_Vectors.Vector;
    begin
-      if A01 /= "" then Result.Append (A01); end if;
-      if A02 /= "" then Result.Append (A02); end if;
-      if A03 /= "" then Result.Append (A03); end if;
-      if A04 /= "" then Result.Append (A04); end if;
-      if A05 /= "" then Result.Append (A05); end if;
-      if A06 /= "" then Result.Append (A06); end if;
+      if A01 /= "" then
+         Result.Append (A01);
+      end if;
+      if A02 /= "" then
+         Result.Append (A02);
+      end if;
+      if A03 /= "" then
+         Result.Append (A03);
+      end if;
+      if A04 /= "" then
+         Result.Append (A04);
+      end if;
+      if A05 /= "" then
+         Result.Append (A05);
+      end if;
+      if A06 /= "" then
+         Result.Append (A06);
+      end if;
       return Result;
    end Args;
 
@@ -280,7 +292,6 @@ procedure Backup_Verify_Tests is
       Data (Pos + 3) := Stream_Element (Shift_Right (Value, 24) and 16#FF#);
    end Put_U32_At;
 
-
    procedure Put_U64_At
      (Data  : in out Stream_Element_Array;
       Pos   : Stream_Element_Offset;
@@ -329,8 +340,6 @@ procedure Backup_Verify_Tests is
            Stream_Element (Bytes (I));
       end loop;
    end Put_Zlib_Bytes;
-
-
 
    function Zipcrypto_CRC32_Update
      (Crc : Unsigned_32;
@@ -471,7 +480,6 @@ procedure Backup_Verify_Tests is
       Put_U32_At (Data, Eocd + 16, Unsigned_32 (Central - 1));
       Write_All (Path, Data);
    end Write_Encrypted_Stored_Zip;
-
 
    procedure Put_Stream_Bytes
      (Data  : in out Stream_Element_Array;
@@ -675,7 +683,6 @@ procedure Backup_Verify_Tests is
       return 0;
    end Find_Signature;
 
-
    procedure Write_Two_Part_Zip
      (Source_Zip : String;
       Final_Zip  : String)
@@ -741,7 +748,7 @@ procedure Backup_Verify_Tests is
       Eocd_Shifted : constant Stream_Element_Offset := Eocd + Added;
       Extended : Stream_Element_Array (1 .. Data'Length + Added);
    begin
-      pragma Assert (Local > 0 and Central > Local and Eocd > Central,
+      pragma Assert (Local > 0 and then Central > Local and then Eocd > Central,
                      "one-entry ZIP fixture has local, central, and EOCD records");
 
       for Pos in Data'First .. (if Has_Descriptor then Descriptor + 7 else Central - 1) loop
@@ -797,7 +804,7 @@ procedure Backup_Verify_Tests is
       Central : constant Stream_Element_Offset :=
         Find_Signature (Data, 16#0201_4B50#);
    begin
-      pragma Assert (Local > 0 and Central > Local,
+      pragma Assert (Local > 0 and then Central > Local,
                      "one-entry Zstd ZIP fixture has local and central records");
       Check (U16_At (Data, Local + 8) = 93,
              "legacy zstd fixture source local method is 93");
@@ -807,7 +814,6 @@ procedure Backup_Verify_Tests is
       Put_U16_At (Data, Central + 10, 20);
       Write_All (Final_Zip, Data);
    end Write_Legacy_Zstd_Method_Copy;
-
 
    function Seven_Zip_Available return Boolean is
    begin
@@ -977,7 +983,6 @@ begin
       Verify_OK (BZip2_Zip, "bzip2 ZIP archive");
    end if;
 
-
    declare
       Directory_Zip : constant String := Root & "/directory-entry.zip";
       Report        : Backup.Verify.Verification_Report;
@@ -1000,8 +1005,6 @@ begin
       Check (Index (Text, Character'Val (34) & "directory" & Character'Val (34)) /= 0,
              "verify JSON reports explicit directory kind");
    end;
-
-
 
    declare
       AES_Zip : constant String := Root & "/aes-stored.zip";
@@ -1266,8 +1269,6 @@ begin
                     "unsupported compression-method diagnostics");
    end;
 
-
-
    declare
       Report : Backup.Verify.Verification_Report;
       Status : constant Backup.Verify.Verify_Status :=
@@ -1277,7 +1278,6 @@ begin
       Check (Status = Backup.Verify.Verify_Open_Failed,
              "missing archive reports open failure");
    end;
-
 
    declare
       Corrupt : constant String := Root & "/truncated-payload.zip";
@@ -1340,7 +1340,6 @@ begin
              "verify compression diagnostic names unsupported option");
    end;
 
-
    declare
       Compatible : constant String := Root & "/deflate-maximum-compression-flag.zip";
       Data       : Stream_Element_Array := Read_All (Def_Zip);
@@ -1379,8 +1378,6 @@ begin
       Verify_Fails (Corrupt, Backup.Verify.Verify_Metadata_Mismatch,
                     "local and central general-purpose flags must match");
    end;
-
-
 
    declare
       Corrupt : constant String := Root & "/central-disk-start.zip";

@@ -99,7 +99,6 @@ package body Backup.Workflow is
          null;
    end Delete_If_Exists;
 
-
    function Move_Temp_To_Final
      (Temp_Path   : String;
       Final_Path  : String;
@@ -171,7 +170,6 @@ package body Backup.Workflow is
       return Status;
    end Prepare_Archive_For_Read;
 
-
    procedure Convert_To_Zip_Entries
      (Scanned : Backup.Scanner.Entry_Vectors.Vector;
       Zipped  : out Backup.Zip.Source_Entry_Vectors.Vector)
@@ -199,7 +197,6 @@ package body Backup.Workflow is
       end loop;
    end Convert_To_Zip_Entries;
 
-
    procedure Cleanup_Prepared_Payloads
      (Entries : in out Backup.Scanner.Entry_Vectors.Vector)
    is
@@ -222,7 +219,6 @@ package body Backup.Workflow is
          end;
       end loop;
    end Cleanup_Prepared_Payloads;
-
 
    function Prepare_Compressed_Payloads
      (Base_Path  : String;
@@ -298,7 +294,6 @@ package body Backup.Workflow is
 
       return True;
    end Prepare_Compressed_Payloads;
-
 
    procedure Append_Manifest_Entry
      (Entries          : in out Backup.Zip.Source_Entry_Vectors.Vector;
@@ -430,7 +425,6 @@ package body Backup.Workflow is
       end loop;
    end Build_Dry_Run_Report;
 
-
    function Decimal (Value : Interfaces.Unsigned_64) return String is
       Image : constant String := Interfaces.Unsigned_64'Image (Value);
    begin
@@ -551,7 +545,6 @@ package body Backup.Workflow is
 
       return True;
    end Check_Size_Limits;
-
 
    function Total_Uncompressed_Size
      (Entries : Backup.Scanner.Entry_Vectors.Vector)

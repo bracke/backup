@@ -572,7 +572,7 @@ begin
    Require_Text ("share/backup/messages.catalog", "--help-advanced");
    Require_Text ("share/backup/messages.catalog", "en.help.advanced.remote1");
    Require_Text ("share/backup/messages.catalog", "en.error.prefix");
-   Require_Text ("src/backup-messages.adb", "I18N.Runtime.Initialize");
+   Require_Text ("src/backup-messages.adb", "Messages.Runtime.Initialize");
    Require_Text ("src/backup-cli.adb", "Backup.Messages");
    Require_Text ("src/backup-cli.adb", "Backup.CLI_Surface.Message_Key");
    Require_Text ("src/backup-cli_surface.ads", "with SPARK_Mode => On");

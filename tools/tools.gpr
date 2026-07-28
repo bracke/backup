@@ -12,7 +12,14 @@ project Tools is
         Backup_Tools_Config.Ada_Compiler_Switches & ("-gnat2022", "-gnatyM120", "-gnata", "-gnatW8", "-gnatwa", "-gnatwJ");
    end Compiler;
 
+
+   --  Bytes out as bytes in. Alire's generated switches carry -gnatW8 and the
+   --  binder takes its run-time encoding from the same place, which makes
+   --  Ada.Text_IO encode every byte above 127 a second time on the way out:
+   --  text that was already UTF-8 -- an accented path, an internationalized
+   --  domain name, a translated message -- came out doubled. -Wb is the
+   --  compiler default and leaves the bytes alone.
    package Binder is
-      for Switches ("Ada") use ("-Es");
+      for Switches ("Ada") use ("-Es", "-Wb");
    end Binder;
 end Tools;
